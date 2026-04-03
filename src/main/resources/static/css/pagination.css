@@ -1,0 +1,30 @@
+//This css is use for the pagination
+//if the information overflow the page
+//created on dt 25/03/2026
+
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+
+.pagination ul {
+    list-style: none;
+    display: flex;
+    gap: 5px;
+    padding: 0;
+}
+
+.pagination a {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+

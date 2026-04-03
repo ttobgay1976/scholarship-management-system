@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+<head>
+<meta charset="ISO-8859-1">
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', () => {
+    const countrySelect = document.getElementById('countrySelect');
+    const stateSelect = document.getElementById('stateSelect');
+    const citySelect = document.getElementById('citySelect');
+
+/*     console.log(countrySelect); // */
+
+    // Load states when country changes
+    countrySelect.addEventListener('change', () => {
+        const countryId = countrySelect.value;
+/*         alert("@@@Country ID selected: " + countryId); */
+
+        stateSelect.innerHTML = '<option value="">--Select State--</option>';
+        citySelect.innerHTML = '<option value="">--Select City--</option>';
+
+        if (!countryId) return;
+
+        fetch(`/api/states?countryId=${countryId}`)
+            .then(res => res.json())
+            .then(states => {
+            console.log("@@@ States received:", states);  // <--- Add this
+                states.forEach(state => {
+                    const option = document.createElement('option');
+                    option.value = state.id;
+                    option.textContent = state.stateName;
+                    stateSelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error(err));
+    });
+
+    // Load cities when state changes
+    stateSelect.addEventListener('change', () => {
+        const stateId = stateSelect.value;
+
+        citySelect.innerHTML = '<option value="">--Select City--</option>';
+        if (!stateId) return;
+
+        fetch(`/api/cities?stateId=${stateId}`)
+            .then(res => res.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = city.cityName;
+                    citySelect.appendChild(option);
+                });
+            })
+            .catch(err => console.error(err));
+    });
+});
+</script>
+</head>
+<section layout:fragment="content">
+	<div class="container p-2 bg-body-secondary">Add College</div>
+	<div class="container p-4">
+		<!-- Success message -->
+
+		<div th:if="${message}" class="alert alert-success"
+			th:text="${message}"></div>
+
+		<!-- Registration Form -->
+		<form th:action="@{/college/register}" th:object="${collegefrmbean}"
+			method="post" autocomplete="off" id="collegeregistrationForm">
+			<div class="row mb-3">
+				<label for="collegename" class="col-sm-2 col-form-label">College
+					Name:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{collegeName}" id="collegeName"
+						class="form-control" placeholder="Enter College Name" required>
+				</div>
+
+				<label for="shortname" class="col-sm-2 col-form-label">College
+					Short Name:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{shortName}" id="shortName"
+						class="form-control" placeholder="Enter College Short Name"
+						required>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="email" class="col-sm-2 col-form-label">College
+					Email:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{email}" id="email"
+						class="form-control" placeholder="Enter College email" required>
+				</div>
+
+				<label for="phoneNo" class="col-sm-2 col-form-label">Phone
+					No.:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{phoneNo}" id="phoneNo"
+						class="form-control" placeholder="Enter Phone No" required>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<label for="country" class="col-sm-2 col-form-label">Select
+					Country :</label>
+				<div class="col-sm-4">
+					<select id="countrySelect" class="form-select"
+						th:field="*{countryId}">
+						<option value="" selected>Select Country</option>
+						<option th:each="ctry : ${lstcountry}" th:value="${ctry.Id}"
+							th:text="${ctry.countryName} + ' (' + ${ctry.countryCode} + ')'">
+					</select>
+				</div>
+				<label for="state" class="col-sm-2 col-form-label">State:</label>
+				<div class="col-sm-4">
+					<select id="stateSelect" th:field="*{stateId}"
+						class="form-select">
+						<option value="">--Select State--</option>
+					</select>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="city" class="col-sm-2 col-form-label">City:</label>
+				<div class="col-sm-4">
+					<select id="citySelect" th:field="*{cityId}"
+						class="form-select">
+						<option value="">--Select City--</option>
+					</select>
+				</div>
+				<label for="address" class="col-sm-2 col-form-label">Address:</label>
+				<div class="col-sm-4">
+					<input type=text th:field="*{address}" id="address"
+						class="form-control" placeholder="Enter Address" required>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="website" class="col-sm-2 col-form-label">WebSite:</label>
+				<div class="col-sm-4">
+					<input type=text th:field="*{website}" id="city"
+						class="form-control" placeholder="Enter College Website" required>
+				</div>
+			</div>
+			<!-- CSRF Token -->
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<hr>
+			<div class="row mb-3">
+				<div class="col-sm-4 mx-auto">
+					<button type="submit" class="btn btn-primary">Register</button>
+				</div>
+			</div>
+		</form>
+
+		<p class="text-center mt-3">
+			Already have an account? <a th:href="@{/login}"
+				class="text-decoration-none">Login here</a>
+		</p>
+	</div>
+	<th:block
+		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+</section>
+
+</html>

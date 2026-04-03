@@ -1,0 +1,11 @@
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<header th:fragment="header" class="bg-success text-white p-3">
+	<div style="display: flex; width: 100%;">
+		<div style="flex: 1;">SPRMS System</div>
+<!-- 		<div style="text-align: right;" th:if="${username}"
+			th:text="${username}"></div> -->
+		User ::&nbsp <span sec:authentication="name"></span>
+	</div>
+</header>
+</html>

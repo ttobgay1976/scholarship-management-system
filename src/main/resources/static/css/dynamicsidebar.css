@@ -1,0 +1,109 @@
+/* Sidebar container */
+.sidebar-menu {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	width: 200px;
+	background: #F0F0F0;
+}
+
+/* Menu item */
+.menu-item {
+	list-style: none;
+}
+
+/* Menu link */
+.menu-link {
+	display: flex;
+	justify-content: space-between;
+	padding: 5px 7px !important;
+	text-decoration: none;
+	color: #000 !important;
+	cursor: pointer;
+	background: #F8F8F8;
+	transition: background 0.3s;
+}
+
+.menu-link:hover {
+	background: #dcdcdc;
+}
+
+/* Arrow */
+.arrow {
+	transition: transform 0.3s ease;
+}
+
+/* Rotate arrow if open */
+.menu-item.open>.menu-link .arrow {
+	transform: rotate(90deg);
+}
+
+/* Submenu */
+.submenu {
+	display: none;
+	list-style: none;
+	padding-left: 10px !important;
+	background: #EFEFEF;
+}
+
+/* Child link */
+.submenu li a {
+	display: block;
+	padding: 5px 15px;
+	text-decoration: none;
+	color: black;
+	transition: background 0.3s;
+}
+
+.submenu li a:hover {
+	background: #ddd;
+}
+
+.menu-item {
+	list-style: none;
+}
+
+.menu-link {
+	display: flex;
+	justify-content: space-between;
+	padding: 10px;
+	cursor: pointer;
+	text-decoration: none;
+	color: black;
+}
+
+.menu-item.open>.submenu {
+	display: block;
+}
+
+.arrow {
+	transition: transform 0.3s;
+}
+
+.menu-item.open>.menu-link .arrow {
+	transform: rotate(90deg);
+}
+
+/* Highlight active child link */
+.submenu li a.active {
+	background-color: #D3D3D3;
+	color: #0000FF;
+}
+
+/* Highlight active parent menu */
+/* .menu-item.active>.menu-link {
+	background: #D3D3D3 !important;
+	color: #0000FF !important;
+
+} */
+.submenu-link.active,
+.menu-link.single-link.active,
+.menu-item.active > .menu-link {
+	background-color: #D3D3D3 !important;
+	color: #0000FF !important;
+}
+
+.form-select {
+    background-color: white !important;
+    color: black !important;;
+}

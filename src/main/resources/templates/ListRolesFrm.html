@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}">
+
+<section layout:fragment="content">
+    
+    <div class="container p-2 bg-body-secondary">Roles Details</div>
+
+    <div class="container mt-3">
+        <table class="table table-bordered table-hover mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Role Name</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="role : ${lstRoles}">
+                    <td th:text="${role.roleId}"></td>
+                    <td th:text="${role.roleName}"></td>
+                    <td th:text="Active"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+</html>

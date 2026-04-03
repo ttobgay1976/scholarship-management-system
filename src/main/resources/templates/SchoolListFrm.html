@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<section layout:fragment="content">
+
+	<div class="container p-2 bg-body-secondary">School Details</div>
+
+	<div class="container mt-3">
+		<table class="table table-bordered table-hover mt-3">
+			<thead class="table-dark">
+				<tr>
+					<th>ID</th>
+					<th>School Name</th>
+					<th>Location</th>
+					<th>Status</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="school : ${schools}">
+					<td th:text="${school.id}"></td>
+					<td th:text="${school.schoolName}"></td>
+					<td th:text="${school.schoolLocation}"></td>
+					<td th:text="Active"></td>
+					<td><a th:href="@{/school/edit/{id}(id=${school.id})}"
+						class="btn btn-primary btn-sm">Edit</a> <a
+						th:href="@{/school/delete/{id}(id=${school.id})}"
+						class="btn btn-danger btn-sm"
+						onclick="return confirm('Are you sure you want to delete this record?');">
+							Delete </a></td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- Pagination -->
+		<div class="pagination">
+			<ul style="list-style:none; display:flex; gap:10px;">
+				<li th:if="${schools.hasPrevious()}"><a
+					th:href="@{/school/lstschools(page=${schools.number-1},size=${schools.size})}">Previous</a>
+				</li>
+				<li th:each="i : ${#numbers.sequence(0, schools.totalPages-1)}">
+					<a th:href="@{/school/lstschools(page=${i},size=${schools.size})}"
+					th:text="${i+1}"
+					th:classappend="${i == schools.number} ? 'active' : ''"></a>
+				</li>
+				<li th:if="${schools.hasNext()}"><a
+					th:href="@{/school/lstschools(page=${schools.number+1},size=${schools.size})}">Next</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+</section>
+
+</html>

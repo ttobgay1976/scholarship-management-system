@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+<head>
+<meta charset="ISO-8859-1">
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<script type="text/javascript">
+Password match validation const form = document.getElementById('registrationForm');
+const password = document.getElementById('password'); 
+const confirmPassword = document.getElementById('confirmPassword'); 
+const feedback = document.getElementById('passwordFeedback'); form.addEventListener('submit', function (e) { if (password.value !== confirmPassword.value) { e.preventDefault(); // Stop form submission confirmPassword.classList.add('is-invalid'); // Show feedback } else { confirmPassword.classList.remove('is-invalid'); } }); // Optional: Remove invalid state on input confirmPassword.addEventListener('input', function () { if (password.value === confirmPassword.value) { confirmPassword.classList.remove('is-invalid'); } });
+
+</script>
+
+</head>
+<section layout:fragment="content">
+	<div class="container p-2 bg-body-secondary">Add User</div>
+	<div class="container p-4">
+		<!-- Success message -->
+
+		<div th:if="${message}" class="alert alert-success"
+			th:text="${message}"></div>
+
+		<!-- Registration Form -->
+		<form th:action="@{/user/saveuser}" th:object="${newuser}"
+			method="post" autocomplete="off" id="registrationForm">
+			<div class="row mb-3">
+				<label for="firstname" class="col-sm-2 col-form-label">First
+					Name:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{firstname}" id="firstname"
+						class="form-control" placeholder="Enter First Name" required>
+				</div>
+
+				<label for="secondname" class="col-sm-2 col-form-label">Second
+					Name:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{lastname}" id="lastname"
+						class="form-control" placeholder="Enter last Name" required>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="user_cid_no" class="col-sm-2 col-form-label">Citizen
+					No:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{cidno}" id="user_cid_no"
+						class="form-control" placeholder="Enter CID" required>
+				</div>
+
+				<label for="user_contact_no" class="col-sm-2 col-form-label">Contact
+					No.:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{contactno}" id="user_contact_no"
+						class="form-control" placeholder="Enter Contact No" required>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<label for="username" class="col-sm-2 col-form-label">User
+					Name:</label>
+				<div class="col-sm-4">
+					<input type="text" th:field="*{username}" id="username"
+						class="form-control" placeholder="Enter User Name" required>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="password" class="col-sm-2 col-form-label">Password:</label>
+				<div class="col-sm-4">
+					<input type="password" th:field="*{password}" id="password"
+						autocomplete="new-password" class="form-control"
+						placeholder="Enter Password" required>
+				</div>
+			</div>
+			<div class="row mb-3">
+				<label for="confirmPassword" class="col-sm-2 col-form-label">Confirm
+					Password:</label>
+				<div class="col-sm-4">
+					<input type="password" th:field="*{confirmpwd}"
+						id="confirmPassword" class="form-control"
+						placeholder="Re-enter password" required>
+					<div id="passwordFeedback" class="invalid-feedback">Passwords
+						do not match.</div>
+				</div>
+			</div>
+
+			<!-- CSRF Token -->
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<hr>
+			<div class="row mb-3">
+				<div class="col-sm-4 mx-auto">
+					<button type="submit" class="btn btn-primary">Register</button>
+				</div>
+			</div>
+		</form>
+
+		<p class="text-center mt-3">
+			Already have an account? <a th:href="@{/login}"
+				class="text-decoration-none">Login here</a>
+		</p>
+	</div>
+	<th:block
+		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+</section>
+</html>

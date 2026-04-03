@@ -1,0 +1,57 @@
+
+<nav th:fragment="sidebar" class="sidebar">
+
+	<h2>Menu</h2>
+	<!-- sidebar.html -->
+
+<!-- 
+			<li>
+		<ul class="nav flex-column ms-3">
+			<hr style="border: 1px solid #007bff; margin: 3px 0;">
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/user/registrationfrm">User Registration</a></li>
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/user/userlists">List Users</a></li>
+			<hr style="border: 1px solid #007bff; margin: 3px 0;">
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/role/addrolefrm">User Role</a></li>
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/role/lstroles">List Roles</a></li>
+			<hr style="border: 1px solid #007bff; margin: 3px 0;">
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/others/menufrm">Add Menu</a></li>
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/others/rolemenumapfrm">Map Role & Menu</a></li>
+			<li class="nav-item"><a class="nav-link child-menu"
+				href="/user/userrolemapfrm">User Role Mapping</a></li>
+		</ul>
+	</li> -->
+		
+
+	<!-- This is working from to display the dynamic menu to sidebar on dashboard
+	dated : 01/04/2026
+ -->
+
+	<ul class="sidebar-menu" id="menus">
+		<li th:each="menu : ${menus}" class="menu-item"
+			th:data-id="${menu.id}">
+			<!-- Parent Menu (expandable) --> <a href="javascript:void(0);"
+			class="menu-link"
+			th:if="${menu.children != null and !menu.children.isEmpty()}"> <span
+				th:text="${menu.menuName}"></span> <span class="arrow">▶</span>
+		</a> <!-- Single Link Menu --> <a th:href="@{${menu.menuUrl}}"
+			class="menu-link single-link"
+			th:if="${menu.children == null or menu.children.isEmpty()}"
+			th:text="${menu.menuName}"></a> <!-- Child Menus -->
+			<ul class="submenu"
+				th:if="${menu.children != null and !menu.children.isEmpty()}">
+				<li th:each="child : ${menu.children}" th:data-id="${child.id}">
+					<a th:href="@{${child.menuUrl}}" class="submenu-link"
+					th:text="${child.menuName}"></a>
+				</li>
+			</ul>
+		</li>
+	</ul>
+
+
+</nav>

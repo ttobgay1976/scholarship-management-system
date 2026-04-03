@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+<head>
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function() {
+
+    const roleSelect = document.getElementById("roleSelect");
+    const saveBtn = document.getElementById("saveBtn");
+
+    // Load menus when role changes
+    roleSelect.addEventListener("change", function() {
+        const roleId = this.value;
+        if (roleId) loadMenus(roleId);
+        else document.getElementById("menuTree").innerHTML = '';
+    });
+
+    // Optionally load first role on page load
+    if (roleSelect.value) loadMenus(roleSelect.value);
+    function loadMenus(roleId) {
+        fetch('/api/menu?roleId=' + roleId)
+            .then(res => res.json())
+            .then(data => {
+            	console.log("Fetched menus:", data); // Debug
+            	renderMenuTree(data.menus, data.assignedMenuIds);
+            });
+    }
+
+    function renderMenuTree(menus, assignedMenuIds) {
+        const container = document.getElementById("menuTree");
+        container.innerHTML = '';
+
+        if (!menus || menus.length === 0) {
+            container.innerHTML = '<p>No menus available</p>';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+        ul.classList.add('menu-tree');
+
+        menus.forEach(menu => {
+           	console.log("Adding menu:", menu.menuName);
+            ul.appendChild(createMenuLi(menu, assignedMenuIds));
+        });
+
+        container.appendChild(ul);
+    }
+
+    function createMenuLi(menu, assignedMenuIds) {
+        const li = document.createElement('li');
+        li.classList.add('menu-item');
+
+        // Checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = menu.id;
+        checkbox.checked = assignedMenuIds.includes(menu.id);
+        checkbox.onclick = e => {
+            e.stopPropagation(); // prevent collapsing
+            toggleChildren(li, checkbox.checked);
+        };
+        li.appendChild(checkbox);
+
+        // Span for toggle
+        const span = document.createElement('span');
+        span.innerText = ' ' + menu.menuName;
+        span.classList.add('toggle');
+        li.appendChild(span);
+
+        span.addEventListener('click', () => {
+            if (li.classList.contains('expanded')) {
+                li.classList.remove('expanded');
+                const childUl = li.querySelector('ul');
+                if (childUl) childUl.style.display = 'none';
+            } else {
+                li.classList.add('expanded');
+                const childUl = li.querySelector('ul');
+                if (childUl) childUl.style.display = 'block';
+            }
+        });
+
+        // Children
+        if (menu.children && menu.children.length > 0) {
+            const childUl = document.createElement('ul');
+            menu.children.forEach(child => {
+                childUl.appendChild(createMenuLi(child, assignedMenuIds));
+            });
+            childUl.style.display = 'none'; // start collapsed
+            li.appendChild(childUl);
+        }
+
+        return li;
+    }
+
+    function toggleChildren(parentLi, checked) {
+        const children = parentLi.querySelectorAll("ul input[type=checkbox]");
+        children.forEach(child => child.checked = checked);
+    }
+
+    // Save button (example POST)
+    saveBtn.addEventListener("click", () => {
+        const roleId = roleSelect.value;
+        if (!roleId) return alert("Select a role");
+
+        // Collect all checked menu IDs
+        const checkedIds = Array.from(document.querySelectorAll("#menuTree input[type=checkbox]:checked"))
+                                .map(cb => cb.value);
+        
+        const token = document.querySelector('meta[name="_csrf"]').content;
+        const header = document.querySelector('meta[name="_csrf_header"]').content;
+
+        fetch('/api/savemenu', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+		},
+            body: JSON.stringify({roleId: roleId, menuIds: checkedIds})
+        })
+        .then(res => res.json())
+        .then(data => alert(data.message || "Saved successfully"))
+        .catch(err => console.error(err));
+    });
+
+});
+</script>
+<style>
+ul.menu-tree, ul.menu-tree ul {
+	list-style: none;
+	padding-left: 0;
+	margin-left: 0;
+}
+
+ul.menu-tree ul {
+	display: none; /* collapsed by default */
+	padding-left: 20px;
+}
+
+li.menu-item {
+	cursor: pointer;
+	user-select: none;
+}
+
+li.menu-item span.toggle::before {
+	content: "▶ "; /* collapsed icon */
+	display: inline-block;
+	width: 1em;
+}
+
+li.menu-item.expanded>span.toggle::before {
+	content: "▼ "; /* expanded icon */
+}
+</style>
+</head>
+
+<section layout:fragment="content">
+	<div class="container p-2 bg-body-secondary">Menu Management</div>
+	<fieldset>
+		<legend>Menu Management</legend>
+		<!-- Role Dropdown -->
+		<div class="row mb-3 mt-3">
+			<div class="col-sm-4">
+				<label class="form-label">Select Role</label> <select
+					id="roleSelect" class="form-select">
+					<option value="">-- Select Role --</option>
+					<option th:each="role : ${roles}" th:value="${role.roleId}"
+						th:text="${role.roleName}"></option>
+				</select>
+			</div>
+		</div>
+		<div class="row mb-3">
+			<label>Menus</label>
+			<div class="col-sm-4">
+				<!-- Menu Tree will load here -->
+				<div id="menuTree"></div>
+			</div>
+		</div>
+		<button id="saveBtn" class="btn btn-primary mt-3">Save</button>
+	</fieldset>
+
+
+</section>
+
+</html>
+

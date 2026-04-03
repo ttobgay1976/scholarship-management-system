@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Login</title>
+<div th:replace="~{fragments/commonresource_css :: common_resource_css}"></div>
+
+<style type="text/css">
+.error {
+	color: red;
+}
+
+.message {
+	color: green;
+}
+</style>
+</head>
+<body>
+	<main>
+		<div
+			class="container d-flex justify-content-center align-items-center vh-100">
+			<div class="card p-4 shadow-lg" style="width: 22rem;">
+				<h3 class="text-center mb-4">Login</h3>
+				<!-- Show error message if login fails -->
+<!-- 				<div th:if="${param.error}" class="error">Invalid username or
+					password</div> -->
+
+				<!-- Show logout message -->
+				<div th:if="${param.logout}" class="message">You have been
+					logged out successfully</div>
+
+				<form th:action="@{/validateUser}" method="post" autocomplete="off">
+					<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+					<div class="mb-3">
+						<label for="username" class="form-label">User Name</label> <input
+							type="text" name="username" id="username" class="form-control"
+							required>
+					</div>
+					<div class="mb-3">
+						<label for="password" class="form-label">Password</label> <input
+							type="password" name="password" id="password" autocomplete="new-password"
+							class="form-control" required>
+					</div>
+					<input type="hidden" th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+					<button type="submit" class="btn btn-primary w-100">Login</button>
+				</form>
+			</div>
+
+		</div>
+	</main>
+	<div th:replace="~{fragments/footer :: footer}"></div>
+	<div th:replace="~{fragments/commonresource_js :: common_resource_js}"></div>
+</body>
+</html>

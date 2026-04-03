@@ -1,0 +1,64 @@
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    list-style: none;
+}
+
+/* Menu link */
+.menu-link {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black !important;
+    background: #C0C0C0;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hover */
+.menu-link:hover {
+    background: #e0e0e0;
+    color:#555;
+}
+
+/* Arrow icon */
+.arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate arrow when open */
+.menu-item.open > .menu-link .arrow {
+    transform: rotate(90deg);
+}
+
+/* Submenu hidden by default */
+.submenu {
+    display: none;
+    padding-left: 15px;
+    background: #fafafa;
+}
+
+/* Show submenu when open */
+.menu-item.open > .submenu {
+    display: block;
+}
+
+/* Child links */
+.submenu li a {
+    display: block;
+    padding: 8px 15px;
+    text-decoration: none;
+    color: #555;
+}
+
+.submenu li a:hover {
+    background: white;
+    color:#0000ff !important;
+}
