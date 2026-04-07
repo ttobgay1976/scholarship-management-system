@@ -97,3 +97,48 @@ legend {
 }
 
 
+//this is for the card custamization
+.card-container {
+	display: flex;
+	justify-content: center; /* horizontal center */
+	align-items: center; /* vertical center */
+	height: 100vh;
+	background-color: #f0f0f0;
+}
+
+/* Wrapper for multiple cards */
+.cards-wrapper {
+	display: flex; /* arrange cards side by side */
+	gap: 20px; /* space between cards */
+	flex-wrap: wrap; /* wrap if screen is small */
+	justify-content: center; /* center multiple cards */
+}
+
+/* Card styling */
+.card {
+	width: 300px;
+	height: 350px; /* same height for all cards */
+	padding: 20px;
+	background-color: white;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between; /* button stays at bottom */
+}
+
+/* Button styling */
+.card button {
+	align-self: center;
+	padding: 10px 20px;
+	border: none;
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.card button:hover {
+	background-color: #45a049;
+}
+

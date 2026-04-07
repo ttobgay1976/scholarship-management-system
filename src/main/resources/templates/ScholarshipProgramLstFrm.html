@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<section layout:fragment="content">
+
+	<div class="container p-2 bg-body-secondary">Scholarship Program
+		List</div>
+
+	<div class="container mt-3">
+		<table class="table table-bordered table-hover mt-3">
+			<thead class="table-dark">
+				<tr>
+					<th>Id</th>
+					<th>Scholarship Program Name</th>
+					<th>Funding Agency Name</th>
+					<th>Slots Available.</th>
+					<th>Status</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="schpro : ${scholarshipprogramlst}">
+					<td th:text="${schpro.id}"></td>
+					<td th:text="${schpro.scholarshipProgramName}"></td>
+					<td th:text="${schpro.fundingAgencyName}"></td>
+					<td th:text="${schpro.scholarshipAvailableSlots}"></td>
+					<td th:text="Active"></td>
+					<td><a th:href="@{/master/edit/{id}(id=${schpro.id})}"
+						class="btn btn-primary btn-sm">Edit</a> <a
+						th:href="@{/master/delete/{id}(id=${schpro.id})}"
+						class="btn btn-danger btn-sm"
+						onclick="return confirm('Are you sure you want to delete this record?');">
+							Delete </a></td>
+
+					<!-- 					<td><a th:href="@{/master/edit/{id}(id=${lstM.Id})}"
+						class="btn btn-primary btn-sm">Edit</a> <a
+						th:href="@{/master/delete/{id}(id=${lstM.Id})}"
+						class="btn btn-danger btn-sm"
+						onclick="return confirm('Are you sure you want to delete this record?');">
+							Delete </a></td> -->
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+</section>
+
+</html>

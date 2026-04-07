@@ -3,6 +3,7 @@ package com.sprms.system.user.services;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,55 +53,63 @@ public class RoleMenuServiceImpl implements RoleMenuService {
 		return _roleRepository.save(role);
 	}
 
-	// ✅ Replace all menus (important for UI checkbox save)
+	//Replace all menus (important for UI checkbox save)
 	@Override
 	public Role updateRoleMenus(Long roleId, List<Long> menuIds) {
 		
-		logger.info("@@@Calling updateRoleMenus proc..................");
+		 logger.info("@@@Calling updateRoleMenus proc..................");
 
-		Role role = _roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+		    // 1️⃣ Fetch role
+		    
+		    Role role = _roleRepository.findById(roleId)
+		            .orElseThrow(() -> new RuntimeException("Role not found"));
 
-	    // fetch all menu entities
-	    List<Menu> menus = _menuRepository.findAllById(menuIds);
-	    if (menus.isEmpty() && !menuIds.isEmpty()) {
-	        throw new RuntimeException("Some menus not found in DB");
-	    }
-	    
-		/* role.setMenus(new HashSet<>(menus)); */
-		
-        // 2️⃣ Delete existing mappings for this role
-		/* _roleMenuMapRepository.deleteByRole(role); */
+		    List<RoleMenuMap> existingMappings = _roleMenuMapRepository.findByRole(role);
+		    
 
-        List<RoleMenuMap> mappings = menus.stream()
-                .map(menu -> {
-                    RoleMenuMap map = new RoleMenuMap();
-                    //map.setId(Long.parseLong(DateUtil.getUniqueID()));
-                    map.setRole(role);
-                    map.setMenu(menu);  // ⚠ assign the entity, not just ID
-                    return map;
-                })
-                .toList();
+		    Set<Long> existingMenuIds = existingMappings.stream()
+		            .map(rm -> rm.getMenu().getId())
+		            .collect(Collectors.toSet());
 
-        //Save all RoleMenuMap
-        _roleMenuMapRepository.saveAll(mappings);
+		    Set<Long> newMenuIds = menuIds != null ? new HashSet<>(menuIds) : new HashSet<>();
 
-        //Return the updated role
-        return role;
+		    // 3️⃣ Delete unchecked menus
+		    for (RoleMenuMap rm : existingMappings) {
+		        if (!newMenuIds.contains(rm.getMenu().getId())) {
+		            _roleMenuMapRepository.delete(rm);
+		        }
+		    }
+
+		    // 4️⃣ Fetch all menus for new checked menuIds
+		    List<Menu> menus = _menuRepository.findAllById(newMenuIds);
+
+		    // 5️⃣ Save newly checked menus (if not already existing)
+		    for (Menu menu : menus) {
+		        if (!existingMenuIds.contains(menu.getId())) {
+		            RoleMenuMap rm = new RoleMenuMap();
+		            rm.setRole(role);
+		            rm.setMenu(menu);
+		            _roleMenuMapRepository.save(rm);
+		        }
+		    }
+
+		    return role;
 	}
 
 	// ✅ Remove selected menus
-	@Override
-	public Role removeMenusFromRole(Long roleId, List<Long> menuIds) {
-		
-		logger.info("@@@Calling removeMenusFromRole proc..................");
-
-		Role role = _roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
-
-		List<Menu> menus = _menuRepository.findAllById(menuIds);
-
-		role.getMenus().removeAll(menus);
-
-		return _roleRepository.save(role);
-	}
-
+	/*
+	 * @Override public Role removeMenusFromRole(Long roleId, List<Long> menuIds) {
+	 * 
+	 * logger.info("@@@Calling removeMenusFromRole proc..................");
+	 * 
+	 * Role role = _roleRepository.findById(roleId).orElseThrow(() -> new
+	 * RuntimeException("Role not found"));
+	 * 
+	 * List<Menu> menus = _menuRepository.findAllById(menuIds);
+	 * 
+	 * role.getMenus().removeAll(menus);
+	 * 
+	 * return _roleRepository.save(role); }
+	 */
+	
 }

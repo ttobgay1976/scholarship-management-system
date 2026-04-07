@@ -47,7 +47,7 @@ public class GlobalControllerAdvice {
 		List<MenuDTO> menus = menuService.getSidebarMenus(user.getId());
 		
         // 🔹 DEBUG LOG
-        System.out.println("Logged-in user: " + username + ", menus: " + menus);
+		/* System.out.println("Logged-in user: " + username + ", menus: " + menus); */
         
         return menus;
 	}

@@ -4,6 +4,9 @@
 <meta charset="ISO-8859-1">
 <th:block
 	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+	
+	<!-- Header -->
+<div th:replace="~{fragments/HeaderOtherUse :: header}"></div>
 
 <script type="text/javascript">
 Password match validation const form = document.getElementById('registrationForm');
@@ -15,7 +18,7 @@ const feedback = document.getElementById('passwordFeedback'); form.addEventListe
 
 </head>
 <body>
-	<div class="container p-2 bg-body-secondary">Add User</div>
+	<div class="container mt-5 p-2 bg-body-secondary">Add User</div>
 	<div class="container p-4">
 		<!-- Success message -->
 
@@ -23,7 +26,7 @@ const feedback = document.getElementById('passwordFeedback'); form.addEventListe
 			th:text="${message}"></div>
 
 		<!-- Registration Form -->
-		<form th:action="@{/user/saveuser}" th:object="${newuser}" method="post"
+		<form th:action="@{/user/addUserOpenDomain}" th:object="${newuser}" method="post"
 			autocomplete="off" id="registrationForm">
 			<div class="row mb-3">
 				<label for="firstname" class="col-sm-2 col-form-label">First

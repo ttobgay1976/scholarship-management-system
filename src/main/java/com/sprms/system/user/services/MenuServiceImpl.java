@@ -221,9 +221,84 @@ public class MenuServiceImpl implements MenuService {
 		return menus;
 	}
 
-	// get menu to sidebar
+	
+	
+	// new procedure to get menu sorted
+	//date : 07/04/2026
+	
 	@Transactional
 	public List<MenuDTO> getSidebarMenus(Long userId) {
+
+		// Step 1: Fetch menus assigned to the user
+		List<Menu> userMenus = _menuRepository.findMenusByUserId(userId);
+
+		// Step 2: Keep all menus needed for tree building
+		Map<Long, Menu> menuMap = new HashMap<>();
+		for (Menu menu : userMenus) {
+			menuMap.put(menu.getId(), menu);
+		}
+
+		// Step 3: Include missing parent menus recursively
+		for (Menu menu : userMenus) {
+			Menu parent = menu.getParent();
+			while (parent != null) {
+				menuMap.putIfAbsent(parent.getId(), parent);
+				parent = parent.getParent();
+			}
+		}
+
+		// Step 4: Create DTO map
+		Map<Long, MenuDTO> dtoMap = new HashMap<>();
+		for (Menu menu : menuMap.values()) {
+			MenuDTO dto = new MenuDTO();
+			dto.setId(menu.getId());
+			dto.setMenuName(menu.getMenuName());
+			dto.setMenuUrl(menu.getMenuUrl());
+			dto.setIcon(menu.getIcon());
+			dto.setDisplayOrder(menu.getDisplayOrder());
+			dto.setChildren(new ArrayList<>());
+			dtoMap.put(menu.getId(), dto);
+		}
+
+		// Step 5: Build tree
+		List<MenuDTO> roots = new ArrayList<>();
+
+		for (Menu menu : menuMap.values()) {
+			MenuDTO dto = dtoMap.get(menu.getId());
+
+			if (menu.getParent() != null) {
+				MenuDTO parentDto = dtoMap.get(menu.getParent().getId());
+				if (parentDto != null) {
+					parentDto.getChildren().add(dto);
+				} else {
+					roots.add(dto);
+				}
+			} else {
+				roots.add(dto);
+			}
+		}
+
+		// Step 6: Sort root and child menus
+		sortMenus(roots);
+
+		return roots;
+	}
+
+	private void sortMenus(List<MenuDTO> menus) {
+		if (menus == null || menus.isEmpty()) {
+			return;
+		}
+
+		menus.sort(Comparator.comparing(MenuDTO::getDisplayOrder, Comparator.nullsLast(Integer::compareTo)));
+
+		for (MenuDTO menu : menus) {
+			sortMenus(menu.getChildren());
+		}
+	}
+
+	// get menu to sidebar
+	@Transactional
+	public List<MenuDTO> getSidebarMenus_Old(Long userId) {
 
 		// Step 1: Fetch menus assigned to the user (flat)
 		List<Menu> userMenus = _menuRepository.findMenusByUserId(userId);
@@ -305,10 +380,8 @@ public class MenuServiceImpl implements MenuService {
 
 		return roots;
 	}
-	
-	
-	
-	//Today changes
-	//date/01/04/2026/
+
+	// Today changes
+	// date/01/04/2026/
 
 }

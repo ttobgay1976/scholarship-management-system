@@ -11,6 +11,7 @@ public class MenuDTO {
     private String icon;
     private Integer displayOrder;
     private List<MenuDTO> children = new ArrayList<>();
+    
     public MenuDTO() {}
 
     public MenuDTO(Long id, String menuName, String menuUrl) {

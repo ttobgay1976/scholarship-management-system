@@ -22,6 +22,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
 			    JOIN ur.role r
 			    JOIN r.menus m
 			    WHERE ur.user.id = :userId
+			    ORDER BY m.displayOrder ASC
 			""")
 	List<Menu> findMenusByUserId(@Param("userId") Long userId);
 

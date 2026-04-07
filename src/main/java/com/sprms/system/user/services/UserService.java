@@ -107,8 +107,8 @@ public class UserService implements UserDetailsService {
 	public Optional<User> findByUsername(String username) {
 
 		logger.info("@@@Calling the findByUsername proc...............");
-		System.out.println("@@@UserName passed as value :"+ username);
-		
+		System.out.println("@@@UserName passed as value :" + username);
+
 		return _userRepository.findByUsername(username);
 	}
 
@@ -121,5 +121,6 @@ public class UserService implements UserDetailsService {
 
 		return user.getUserRoles().stream().map(UserRoles::getRole).collect(Collectors.toSet());
 	}
+
 
 }

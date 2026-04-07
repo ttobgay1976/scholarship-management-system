@@ -14,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sprms.system.frmbeans.CollegeFrmBean;
+import com.sprms.system.frmbeans.CollegesDTO;
 import com.sprms.system.frmbeans.CountryFrmBean;
 import com.sprms.system.hbmbeans.College;
 import com.sprms.system.hbmbeans.Country;
 import com.sprms.system.master.services.CollegeRegistrationServices;
 import com.sprms.system.master.services.CountryServices;
 import com.sprms.system.modelMapper.CollegeFrmBeanMapper;
+import com.sprms.system.modelMapper.CollegesDTOMapper;
 import com.sprms.system.modelMapper.CountryFrmBeanMapper;
 import com.sprms.system.wrapper.ServiceResponse;
 
@@ -38,16 +40,16 @@ public class CollegeRegistrationController {
 
 //	declare the services
 	private final CollegeRegistrationServices _collegeRegistrationServices;
-	private final CollegeFrmBeanMapper _collegeFrmBeanMapper;
+	private final CollegesDTOMapper _collegesDTOMapper;
 	private final CountryServices _countryServices;
 	private final CountryFrmBeanMapper _countryFrmBeanMapper;
 
 //	construction to initiaxze the variable
 	public CollegeRegistrationController(CollegeRegistrationServices collegeRegistrationServices,
-			CollegeFrmBeanMapper collegeFrmBeanMapper, CountryServices countryServices,
+			CollegesDTOMapper collegesDTOMapper, CountryServices countryServices,
 			CountryFrmBeanMapper countryFrmBeanMapper) {
 		this._collegeRegistrationServices = collegeRegistrationServices;
-		this._collegeFrmBeanMapper = collegeFrmBeanMapper;
+		this._collegesDTOMapper = collegesDTOMapper;
 		this._countryServices = countryServices;
 		this._countryFrmBeanMapper = countryFrmBeanMapper;
 	}
@@ -69,7 +71,7 @@ public class CollegeRegistrationController {
 
 //	College save method
 	@PostMapping("/register")
-	public String saveCollege(@Valid @ModelAttribute("college") CollegeFrmBean collegeFrmBean, BindingResult result,
+	public String saveCollege(@Valid @ModelAttribute("college") CollegesDTO collegesDTO, BindingResult result,
 			Model model, RedirectAttributes redirectAttributes) {
 
 		logger.info("@@@Calling the college save method---------------");
@@ -78,16 +80,18 @@ public class CollegeRegistrationController {
 			return "redirect:/college/registrationfrm";
 		}
 
-//		use mapper to map the frmBean to entity bean
-		College college = new College();
-		college = _collegeFrmBeanMapper.toEntity(collegeFrmBean);
-
 //		pass the value to save called method
 //		call the service static method to get status
-		ServiceResponse<College> getResponse = _collegeRegistrationServices.saveCollege(college);
+		CollegesDTO getResponse = _collegeRegistrationServices.saveCollege(collegesDTO);
 
-//		this gets the response from the service layer and then redirect message form
-		redirectAttributes.addFlashAttribute("message", getResponse.getMessage());
+		try {
+			
+//			this gets the response from the service layer and then redirect message form
+			redirectAttributes.addFlashAttribute("message", "Information saved successfully");
+		} catch (Exception e) {
+			// TODO: handle exception
+			redirectAttributes.addFlashAttribute("message", "Information not save: "+ e.getMessage());
+		}
 
 		return "redirect:/college/registrationfrm";
 	}
@@ -97,12 +101,11 @@ public class CollegeRegistrationController {
 
 		logger.info("@@@Calling the college List------------------");
 		List<College> lstCol = _collegeRegistrationServices.getAllColleges();
+
 		for(College col :lstCol) {
-			System.out.println("@@@Coll Name :"+ col.getCollegeName());
-			System.out.println("@@@Coll Name :"+ col.getCity().getCityName());
+			System.out.println("@@@Country Name :"+ col.getCountry().getCountryName());
 		}
-		
-		model.addAttribute("colleges", _collegeRegistrationServices.getAllColleges());
+		model.addAttribute("colleges", lstCol);
 
 		return DISPLAY_COLLAGE_LIST;
 	}

@@ -61,13 +61,13 @@ public class MenuController {
 	public MenuController(MenuService menuServices, MenuFrmBeanMapper menuFrmBeanMapper,
 			UserRolesServices userRolesServices, RoleServices roleServices, RolesBeanMapper rolesBeanMapper,
 			UserService userService, UserFrmBeanMapper userFrmBeanMapper, MenuRepository menuRepository,
-			RoleMenuService roleMenuService,RoleMenuMapServices roleMenuMapServices) {
+			RoleMenuService roleMenuService, RoleMenuMapServices roleMenuMapServices) {
 		this._menuServices = menuServices;
 		this._menuFrmBeanMapper = menuFrmBeanMapper;
 		this._roleServices = roleServices;
-		this._menuRepository=menuRepository;
-		this._roleMenuService=roleMenuService;
-		this._roleMenuMapServices=roleMenuMapServices;
+		this._menuRepository = menuRepository;
+		this._roleMenuService = roleMenuService;
+		this._roleMenuMapServices = roleMenuMapServices;
 	}
 
 	// Fget menu entry frm
@@ -178,6 +178,9 @@ public class MenuController {
 	@PostMapping("/save")
 	@ResponseBody
 	public Map<String, Object> saveRoleMenu(@RequestParam Long roleId, @RequestBody List<Long> menuIds) {
+		
+		logger.info("@@@Calling this saveRoleMenu proc............");
+		
 		_roleMenuService.updateRoleMenus(roleId, menuIds);
 		Map<String, Object> response = new HashMap<>();
 		response.put("status", "success");

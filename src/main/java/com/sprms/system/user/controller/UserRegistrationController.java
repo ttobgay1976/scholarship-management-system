@@ -39,23 +39,70 @@ public class UserRegistrationController {
 	private static String DISPLAY_USERs = "ListUserFrm";
 	private static String DISPLAY_USER_ROLE_MAPPING_FRM = "userrolemappingfrm";
 
+	private static String DISPLAY_OPEN_USER_REGISTRATION_FRM = "UserRegistrationFrm";
+
 //		calling the repository
 	private final UserService _userService;
 	private final UserRolesServices _userRolesServices;
 	private final RoleServices _roleServices;
 	private final UserFrmBeanMapper _userFrmBeanMapper;
 	private final RolesBeanMapper _rolesBeanMapper;
-	
 
 	public UserRegistrationController(UserService userService, UserRolesServices userRolesServices,
-			RoleServices roleServices,UserFrmBeanMapper userFrmBeanMapper,RolesBeanMapper rolesBeanMapper) {
+			RoleServices roleServices, UserFrmBeanMapper userFrmBeanMapper, RolesBeanMapper rolesBeanMapper) {
 		this._userService = userService;
 		this._userRolesServices = userRolesServices;
 		this._roleServices = roleServices;
-		this._userFrmBeanMapper=userFrmBeanMapper;
-		this._rolesBeanMapper=rolesBeanMapper;
+		this._userFrmBeanMapper = userFrmBeanMapper;
+		this._rolesBeanMapper = rolesBeanMapper;
 	}
 
+	// This user registration form is access from open domain
+	@GetMapping("/openregistrationfrm")
+	public String getOpenUserRegistrationForm(Model model) {
+
+		logger.info("@@@Calling the User Registration Form--------");
+		model.addAttribute("newuser", new UserFormBean());
+
+		return DISPLAY_OPEN_USER_REGISTRATION_FRM;
+	}
+
+	// Open domain add user proc
+	@PostMapping("/addUserOpenDomain")
+	public String addUserOpenDomain(@ModelAttribute("newuser") UserFormBean userRegistrationFrmBean,
+			RedirectAttributes redirectAttributes) {
+
+		logger.info("@@@Calling the new User save method---------------------");
+
+//			checking the password and passwordconfirmation
+		if (!userRegistrationFrmBean.getPassword().equals(userRegistrationFrmBean.getConfirmpwd())) {
+			redirectAttributes.addFlashAttribute("message", "Password does not match, try again");
+			return "redirect:/user/openregistrationfrm";
+		}
+
+//			password matches then precess further
+		User userEntity = new User();
+
+//			setting and mapping form bean to java entity
+		userEntity.setFirstname(userRegistrationFrmBean.getFirstname());
+		userEntity.setLastname(userRegistrationFrmBean.getLastname());
+		userEntity.setCidno(userRegistrationFrmBean.getCidno());
+		userEntity.setContactno(userRegistrationFrmBean.getContactno());
+		userEntity.setPassword(userRegistrationFrmBean.getPassword());
+		userEntity.setUsername(userRegistrationFrmBean.getUsername());
+
+		try {
+			_userService.registerNewUser(userEntity);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		redirectAttributes.addFlashAttribute("message", "User Added Successfully");
+		return "redirect:/user/openregistrationfrm";
+	}
+
+	// This is for the Administrator User Registration form
 	@GetMapping("/registrationfrm")
 	public String getUserRegistrationForm(Model model) {
 
@@ -70,9 +117,6 @@ public class UserRegistrationController {
 			RedirectAttributes redirectAttributes) {
 
 		logger.info("@@@Calling the new User save method---------------------");
-
-		System.out.println("@@@Pass:" + userRegistrationFrmBean.getPassword());
-		System.out.println("@@@Confrim:" + userRegistrationFrmBean.getConfirmpwd());
 
 //			checking the password and passwordconfirmation
 		if (!userRegistrationFrmBean.getPassword().equals(userRegistrationFrmBean.getConfirmpwd())) {
@@ -120,10 +164,11 @@ public class UserRegistrationController {
 		return "OtherFrm";
 	}
 
-//	User Roles Mapping
-//	created on date 22/03/2026
-//	Author : TTobgay
-//	Home
+	// User Roles Mapping
+	// created on date 22/03/2026
+	// Author : TTobgay
+	// Home
+	// Display the role assigned to the selected user
 	@GetMapping("/userrolemapfrm")
 	public String getUserRoleMappingFrm(Model model) {
 
@@ -141,7 +186,7 @@ public class UserRegistrationController {
 //		list the users and map to from bean with mapper
 		List<User> lstUser = _userService.listUsers();
 		List<UserFormBean> usertofrmbean = _userFrmBeanMapper.toFrmBean(lstUser);
-		
+
 		model.addAttribute("users", usertofrmbean);
 
 		return DISPLAY_USER_ROLE_MAPPING_FRM;
@@ -149,42 +194,26 @@ public class UserRegistrationController {
 
 	// save User Role map
 	// there will be more than one Role selected for the one user
-	//this is fpr the API call
-	@PostMapping("/userrolemap_Old")
-	public ResponseEntity<List<UserRoles>> assignMultipleRoles_API(@RequestParam("id") Long userId,
-			@RequestParam List<Long> roleIds) {
 
-		logger.info("@@@Calling assignMultipleRoles porc................. ");
-
-		List<UserRoles> assignedRoles = _userRolesServices.assignRolesToUser(userId, roleIds);
-		return ResponseEntity.ok(assignedRoles);
-	}
-	
-	// save User Role map
-	// there will be more than one Role selected for the one user
 	@PostMapping("/userrolemap")
-	public String assignMultipleRoles(
-	        @RequestParam("id") Long userId,
-	        @RequestParam List<Long> roleIds,
-	        RedirectAttributes redirectAttributes) {
+	public String assignMultipleRoles(@RequestParam("id") Long userId, @RequestParam List<Long> roleIds,
+			RedirectAttributes redirectAttributes) {
 
-	    try {
-	        _userRolesServices.assignRolesToUser(userId, roleIds);
+		try {
+			_userRolesServices.assignRolesToUser(userId, roleIds);
 
-	        // Add success message
-	        redirectAttributes.addFlashAttribute("message",
-	                "Roles assigned successfully to user: " + userId);
+			// Add success message
+			redirectAttributes.addFlashAttribute("message", "Roles assigned successfully to user: " + userId);
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 
-	        // Add error message
-	        redirectAttributes.addFlashAttribute("message",
-	                "Failed to assign roles: " + e.getMessage());
-	    }
+			// Add error message
+			redirectAttributes.addFlashAttribute("message", "Failed to assign roles: " + e.getMessage());
+		}
 
-	    // Redirect back to the form page
-	    return "redirect:/user/userrolemapfrm";
+		// Redirect back to the form page
+		return "redirect:/user/userrolemapfrm";
 	}
 
 }

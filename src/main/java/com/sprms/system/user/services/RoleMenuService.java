@@ -13,5 +13,5 @@ public interface RoleMenuService {
 
 	Role updateRoleMenus(Long roleId, List<Long> menuIds);
 
-	Role removeMenusFromRole(Long roleId, List<Long> menuIds);
+	/* Role removeMenusFromRole(Long roleId, List<Long> menuIds); */
 }

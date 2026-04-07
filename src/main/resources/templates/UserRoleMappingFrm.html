@@ -11,7 +11,7 @@
 <script type="text/javascript">
 	
 	document.addEventListener("DOMContentLoaded", function () {
-
+	//First combo selection
 	    const userSelect = document.getElementById("userSelect");
 
 	    userSelect.addEventListener("change", function () {
@@ -22,7 +22,7 @@
 	            .forEach(cb => cb.checked = false);
 
 	        if (!userId) return;
-
+	        //alert("@@@User selected :"+ userId);
 	        // 2. Fetch assigned roles
 	        fetch('/api/userroles?userId=' + userId)
 	            .then(res => res.json())
@@ -38,9 +38,32 @@
 	            })
 	            .catch(err => console.error("Error:", err));
 	    });
+	    
+	    
+	    //this os for second checkbox validation
+	    
+	    document.getElementById("userSelect").addEventListener("change", function () {
 
-	});
-	</script>
+	        const userId = this.value;
+		
+	        if (!userId) return;
+	    	//alert("@@@User selected :"+ userId);
+	        fetch(`/api/user/${userId}/roles`)
+	            .then(response => response.json())
+	            .then(data => {
+
+	                // Uncheck all first
+	                document.querySelectorAll(".role-checkbox").forEach(cb => cb.checked = false);
+
+	                // Check assigned roles
+	                data.forEach(roleId => {
+	                    const checkbox = document.querySelector(`.role-checkbox[value='${roleId}']`);
+	                    if (checkbox) checkbox.checked = true;
+	                });
+	            });
+	    });
+});
+</script>
 </head>
 <body>
 	<section layout:fragment="content">
@@ -77,7 +100,7 @@
 						<fieldset class="border p-2">
 							<legend class="w-auto fs-5">Asign Roles </legend>
 							<div th:each="role : ${roles}">
-								<input type="checkbox" th:id="'role-' + ${role.roleId}"
+								<input type="checkbox" class="role-checkbox" th:id="'role-' + ${role.roleId}"
 									th:name="roleIds" th:value="${role.roleId}" />
 								<!-- value submitted -->
 								<label th:for="'role-' + ${role.roleId}"

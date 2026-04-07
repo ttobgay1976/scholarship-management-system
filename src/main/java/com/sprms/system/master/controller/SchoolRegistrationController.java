@@ -26,6 +26,8 @@ public class SchoolRegistrationController {
 	// setting the static variable for the form call
 	private static String DISPLAY_COLLAGE_REGISTRATION_FRM = "CollegeRegistrationFrm";
 	private static String DISPLAY_SCHOOL_LIST = "SchoolListFrm";
+	private static String DISPLAY_SCHOOL_REGISTRATION_FRM = "SchoolRegistrationFrm";
+	
 
 	// call the service repository
 	private final SchoolsServices _schoolsServices;
@@ -45,7 +47,7 @@ public class SchoolRegistrationController {
 
 		logger.info("@@@Calling the school registration frm.................");
 
-		return null;
+		return DISPLAY_SCHOOL_REGISTRATION_FRM;
 	}
 
 	// call the school list

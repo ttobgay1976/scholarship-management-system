@@ -20,7 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	/* boolean existsByEmail(String email); */
     boolean existsByUsername(String username);
     
-    Set<Role> getRolesByUsername(String username);
+	/* Set<Role> getRolesByUsername(String username); */
     
-    List<UserRoles> getRolesById(Long userId);
+	/* List<UserRoles> getRolesById(Long userId); */
+    
+
 }

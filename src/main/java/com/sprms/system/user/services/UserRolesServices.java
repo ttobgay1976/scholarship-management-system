@@ -50,44 +50,7 @@ public class UserRolesServices {
 			// TODO: handle exception
 			return new ServiceResponse<UserRoles>(false, "Information save successfully", null);
 		}
-	}
-
-	@Transactional
-	public ServiceResponse<UserRoles> assignRoles_OLD(Long userId, List<Long> roleIds) {
-
-		try {
-			
-			User user = userRepository.findById(userId).orElse(null);
-
-			// 1️⃣ Delete old roles
-			userRoleRepository.deleteById(userId);
-			
-			System.out.println("@@@Checking the User id passed from Form :"+ userId);
-
-			// 2️⃣ Insert new roles
-			UserRoles saveRoles = new UserRoles();
-			for (Long roleId : roleIds) {
-
-				Role role = roleRepository.findById(roleId).orElse(null);
-
-				UserRoles mapping = new UserRoles();
-				
-				mapping.setUser(user);
-				mapping.setRole(role);
-				mapping.setId(Long.parseLong(DateUtil.getUniqueID()));
-
-				saveRoles = userRoleRepository.save(mapping);
-				
-			}
-			return new ServiceResponse<UserRoles>(true, "Information save successfully", saveRoles);
-		} catch (Exception e) {
-			// TODO: handle exception
-			return new ServiceResponse<UserRoles>(false, "Information save successfully", null);
-		}
-		
-
-	}
-	
+	}	
 	
 	@Transactional
 	public ServiceResponse<List<UserRoles>> assignRoles_Old(Long userId, List<Long> roleIds) {
@@ -150,4 +113,22 @@ public class UserRolesServices {
 
         return savedRoles;
     }
+	
+	// get the role by taking the user name /userID
+	//New
+	public List<Long> getAssignedRoleIds(Long userId) {
+		
+		logger.info("@@@Calling the getAssignedRoleIds.................");
+
+		// 🔍 Validate user exists (recommended)
+		if (!userRepository.existsById(userId)) {
+			throw new RuntimeException("User not found with id: " + userId);
+		}
+		
+		// 📥 Fetch assigned role IDs
+		List<Long> roleIds = userRoleRepository.findRoleIdsByUserId(userId);
+
+		// 🛡️ Null safety (just in case)
+		return roleIds != null ? roleIds : new ArrayList<>();
+	}
 }
