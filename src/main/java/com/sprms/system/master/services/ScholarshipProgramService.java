@@ -37,27 +37,42 @@ public class ScholarshipProgramService {
 		this._fundingAgencyRepository=fundingAgencyRepository;
 	}
 
-	// Save new scholarship Program 
+	
+	//new and modified save proc for Scholarship Program Registration
+	//this procedure will handle both Update and new insertion of information
 	public ScholarshipProgramDTO saveScholarshipProgram(ScholarshipProgramDTO dto) {
 
-		logger.info("@@@Calling the saveSchloarshipProgram.............. ");
-		
-		FundingAgency fndagency = _fundingAgencyRepository.findById(dto.getFundingAgencyId())
-				.orElseThrow(() -> new RuntimeException("FundingAgency not found with id: " + dto.getFundingAgencyId()));
+	    logger.info("@@@Calling the saveScholarshipProgram.............. ");
 
-		ScholarshipProgram program = _scholarshipProgramMapper.toEntity(dto,fndagency);
-		program.setCreatedat(DateUtil.getCurrentDateTime());
-		program.setId(Long.parseLong(DateUtil.getUniqueID()));
-		
-	    // save
+	    FundingAgency fndagency = _fundingAgencyRepository.findById(dto.getFundingAgencyId())
+	            .orElseThrow(() -> new RuntimeException(
+	                    "FundingAgency not found with id: " + dto.getFundingAgencyId()));
+
+	    ScholarshipProgram program;
+
+	    if (dto.getId() != null) {
+	        program = _scholarshipProgramRepository.findById(dto.getId())
+	                .orElseThrow(() -> new RuntimeException(
+	                        "ScholarshipProgram not found with id: " + dto.getId()));
+
+	        program.setFundingAgency(fndagency);
+	        program.setScholarshipProgramName(dto.getScholarshipProgramName());
+	        program.setUpdateat(DateUtil.getCurrentDateTime());
+
+	    } else {
+	        program = _scholarshipProgramMapper.toEntity(dto, fndagency);
+	        program.setId(Long.parseLong(DateUtil.getUniqueID()));
+	        program.setCreatedat(DateUtil.getCurrentDateTime());
+	    }
+
 	    ScholarshipProgram saved = _scholarshipProgramRepository.save(program);
 
-	    // convert back to DTO
 	    return _scholarshipProgramMapper.toDTO(saved);
-		
 	}
+	
 
 	// Update existing scholarship
+	//this is not implemented in any call
 	public ScholarshipProgramDTO updateScholarshipProgram(Long id, ScholarshipProgramDTO dto) {
 
 		logger.info("@@@Calling the updateScholarshipProgram.............. ");
@@ -73,7 +88,7 @@ public class ScholarshipProgramService {
 		return _scholarshipProgramMapper.toDTO(_scholarshipProgramRepository.save(existing));
 	}
 
-	// Get by ID
+	// Get Registration by ID
 	public ScholarshipProgramDTO getById(Long id) {
 
 		logger.info("@@@Calling the getById.............. ");
@@ -83,7 +98,7 @@ public class ScholarshipProgramService {
 		return _scholarshipProgramMapper.toDTO(entity);
 	}
 
-	// Get all
+	// Get all Registration
 	public List<ScholarshipProgramDTO> getAll() {
 
 		logger.info("@@@Calling the getAll.............. ");
@@ -92,13 +107,14 @@ public class ScholarshipProgramService {
 				.collect(Collectors.toList());
 	}
 
-	// Delete
+	// Delete the Registration
 	public void deleteScholarshipProgram(Long id) {
 
 		logger.info("@@@Calling the deleteScholarshipProgram.............. ");
 
 		if (!_scholarshipProgramRepository.existsById(id))
 			throw new RuntimeException("Scholarship not found");
+		
 		_scholarshipProgramRepository.deleteById(id);
 	}
 

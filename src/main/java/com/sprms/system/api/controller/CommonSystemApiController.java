@@ -31,6 +31,7 @@ import com.sprms.system.frmbeans.CustomUserDetails;
 import com.sprms.system.frmbeans.MenuDTO;
 import com.sprms.system.frmbeans.RoleMenuDTO;
 import com.sprms.system.frmbeans.StateDTO;
+import com.sprms.system.frmbeans.StreamDTO;
 import com.sprms.system.hbmbeans.Cities;
 import com.sprms.system.hbmbeans.College;
 import com.sprms.system.hbmbeans.GewogM;
@@ -43,6 +44,7 @@ import com.sprms.system.master.services.CityService;
 import com.sprms.system.master.services.CollegeRegistrationServices;
 import com.sprms.system.master.services.GewogServices;
 import com.sprms.system.master.services.StateServices;
+import com.sprms.system.master.services.StreamServices;
 import com.sprms.system.modelMapper.CollegesDTOMapper;
 import com.sprms.system.user.dao.MenuRepository;
 import com.sprms.system.user.dao.RoleRepository;
@@ -73,11 +75,15 @@ public class CommonSystemApiController {
 	private final UserRepository _userRepository;
 	private final UserRolesServices _userRolesServices;
 
+	// Streams Service injection
+	private final StreamServices _streamServices;
+
 	// initialize the services
 	public CommonSystemApiController(StateServices stateServices, GewogServices gewogServices, CityService cityService,
 			CollegeRegistrationServices collegeRegistrationServices, CollegesDTOMapper collegesDTOMapper,
 			RoleRepository roleRepository, MenuRepository menuRepository, RoleMenuMapServices roleMenuMapServices,
-			RoleMenuService roleMenuService, MenuService menuService, UserRepository userRepository,UserRolesServices userRolesServices) {
+			RoleMenuService roleMenuService, MenuService menuService, UserRepository userRepository,
+			UserRolesServices userRolesServices, StreamServices streamServices) {
 		this._stateServices = stateServices;
 		this._gewogServices = gewogServices;
 		this._cityService = cityService;
@@ -88,9 +94,13 @@ public class CommonSystemApiController {
 		this._roleMenuService = roleMenuService;
 		this._menuService = menuService;
 		this._userRepository = userRepository;
-		this._userRolesServices=userRolesServices;
+		this._userRolesServices = userRolesServices;
+		this._streamServices = streamServices;
 	}
 
+	//This following API are called by passing its parent id and parameter
+	//parameter are either pass as @RequestParam or @pathVariable
+	
 	@GetMapping("/states")
 	public List<StateDTO> getStates(@RequestParam Long countryId) {
 
@@ -123,6 +133,7 @@ public class CommonSystemApiController {
 	}
 
 	// colleges API which can be called by student registration module
+	//API : http://localhost:8080/api/colleges
 	@GetMapping("/colleges")
 	public List<CollegesDTO> getColleges() {
 
@@ -232,24 +243,50 @@ public class CommonSystemApiController {
 		return ResponseEntity.ok(menus);
 	}
 
-	// get the assigned role to user and checkbox get checked	
+	// get the assigned role to user and checkbox get checked
 	// .../api/user/20260402035126/roles -->pass like this in postman test
 	@GetMapping("/user/{userId}/roles")
 	@ResponseBody
 	public List<Long> getUserRoles(@PathVariable Long userId) {
-		
+
 		logger.info("@@@Calling theis proc getUserRoles....................");
 		List<Long> lstRoles = _userRolesServices.getAssignedRoleIds(userId);
-		
-		for(Long lo :lstRoles) {
-			System.out.println("@@Value of Roles:"+ lo);
+
+		for (Long lo : lstRoles) {
+			System.out.println("@@Value of Roles:" + lo);
 		}
-	    return lstRoles;
+		return lstRoles;
 	}
-	
 
-	// COUNTRY REST API
-	// THIS WILL GIVE LIST OF COUNTRIES TO THE COLLAR
-	// DATE: 02/04/2026
+	// STREAM REST API
+	// THIS WILL GIVE LIST OF STREAM TO THE COLLER
+	// DATE: 09/04/2026
 
+	// Create or Update
+	@PostMapping("/savestream")
+	public ResponseEntity<StreamDTO> saveOrUpdate(@RequestBody StreamDTO dto) {
+		StreamDTO saved = _streamServices.saveOrUpdate(dto);
+		return ResponseEntity.ok(saved);
+	}
+
+	// Find all
+	// API url : http://localhost:8080/api/allstreams
+	@GetMapping("/allstreams")
+	public ResponseEntity<List<StreamDTO>> getAll() {
+		return ResponseEntity.ok(_streamServices.findAll());
+	}
+
+	// Find by ID
+	@GetMapping("/stream/{id}")
+	public ResponseEntity<StreamDTO> getById(@PathVariable Long id) {
+		StreamDTO dto = _streamServices.findById(id);
+		return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+	}
+
+	// Find by Name
+	@GetMapping("/stream/find")
+	public ResponseEntity<StreamDTO> getByName(@RequestParam String name) {
+		StreamDTO dto = _streamServices.findByName(name);
+		return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
+	}
 }

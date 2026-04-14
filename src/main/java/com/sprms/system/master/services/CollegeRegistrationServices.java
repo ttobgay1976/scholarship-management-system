@@ -12,6 +12,7 @@ import com.sprms.system.hbmbeans.Cities;
 import com.sprms.system.hbmbeans.College;
 import com.sprms.system.hbmbeans.Country;
 import com.sprms.system.hbmbeans.Role;
+import com.sprms.system.hbmbeans.Schools;
 import com.sprms.system.hbmbeans.State;
 import com.sprms.system.master.dao.CityRepository;
 import com.sprms.system.master.dao.CollegeRegistrationRepository;
@@ -101,14 +102,19 @@ public class CollegeRegistrationServices {
 		// List<CollegeFrmBean> collegeFrmBean =
 		// _collegeFrmBeanMapper.toFrmBean(colleges);
 
-		return _collegeRegistrationRepository.findAll();
+		return colleges;
 	}
 
 	// get Colleges by its ID
-	public College getCollegeById(Long id) {
+	public CollegesDTO getCollegeById(Long id) {
 
 		logger.info("@@@caliing the get college by id proc----------------");
-		return _collegeRegistrationRepository.findById(id).orElse(null);
+		
+		College entity = _collegeRegistrationRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("School not found with id: " + id));
+
+		return CollegesDTOMapper.toDTO(entity);
+	
 	}
 
 	// delete college by its Id

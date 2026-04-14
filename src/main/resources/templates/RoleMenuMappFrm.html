@@ -1,10 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/dashboard}">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta name="_csrf" th:content="${_csrf.token}" />
-<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+<meta charset="UTF-8">
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -103,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function() {
         children.forEach(child => child.checked = checked);
     }
 
-    // Save button (example POST)
+  /*   // Save button (example POST)
     saveBtn.addEventListener("click", () => {
         const roleId = roleSelect.value;
         if (!roleId) return alert("Select a role");
@@ -111,10 +108,11 @@ document.addEventListener("DOMContentLoaded", function() {
         // Collect all checked menu IDs
         const checkedIds = Array.from(document.querySelectorAll("#menuTree input[type=checkbox]:checked"))
                                 .map(cb => cb.value);
-        
+      
         const token = document.querySelector('meta[name="_csrf"]').content;
         const header = document.querySelector('meta[name="_csrf_header"]').content;
-
+        alert("@@@AAAAAAAFFFFFFFFFFFFFF:"+roleId);
+ 
         fetch('/api/savemenu', {
             method: 'POST',
             headers: {
@@ -127,7 +125,39 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => alert(data.message || "Saved successfully"))
         .catch(err => console.error(err));
     });
+ */
+});
 
+document.addEventListener("click", function (e) {
+
+    if (e.target && e.target.id === "saveBtn") {
+
+        console.log("🔥 Save button clicked");
+
+        const roleId = document.getElementById("roleSelect").value;
+
+        const checkedIds = Array.from(
+            document.querySelectorAll("#menuTree input[type='checkbox']:checked")
+        ).map(cb => cb.value);
+
+        const token = document.getElementById("csrfToken").value;
+        const header = document.getElementById("csrfHeader").value;
+
+        fetch('/api/savemenu', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            },
+            body: JSON.stringify({
+                roleId: roleId,
+                menuIds: checkedIds
+            })
+        })
+        .then(res => res.json())
+        .then(data => alert(data.message))
+        .catch(err => console.error(err));
+    }
 });
 </script>
 <style>
@@ -157,35 +187,88 @@ li.menu-item.expanded>span.toggle::before {
 	content: "▼ "; /* expanded icon */
 }
 </style>
+
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
 </head>
+<body>
+	<section layout:fragment="content">
+		<div class="container p-2 bg-body-secondary">Role Menu
+			Management Page</div>
 
-<section layout:fragment="content">
-	<div class="container p-2 bg-body-secondary">Menu Management</div>
-	<fieldset>
-		<legend>Menu Management</legend>
-		<!-- Role Dropdown -->
-		<div class="row mb-3 mt-3">
-			<div class="col-sm-4">
-				<label class="form-label">Select Role</label> <select
-					id="roleSelect" class="form-select">
-					<option value="">-- Select Role --</option>
-					<option th:each="role : ${roles}" th:value="${role.roleId}"
-						th:text="${role.roleName}"></option>
-				</select>
+		<!-- 		<div class="container p-2">
+			Role Dropdown
+			<div class="row mb-3 mt-3">
+				<label for="users" class="col-sm-2 col-form-label text-end">Select
+					Role: </label>
+				<div class="col-sm-4">
+					<select id="roleSelect" class="form-select">
+						<option value="">-- Select Role --</option>
+						<option th:each="role : ${roles}" th:value="${role.roleId}"
+							th:text="${role.roleName}"></option>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="row mb-3">
-			<label>Menus</label>
-			<div class="col-sm-4">
-				<!-- Menu Tree will load here -->
-				<div id="menuTree"></div>
+			<div class="row mb-3">
+				<label class="col-sm-2 col-form-label text-end">Assign
+					Menus: </label>
+				<div class="col-sm-4">
+					Menu Tree will load here
+					<div id="menuTree">--Menus not assign--</div>
+				</div>
 			</div>
+			CSRF Token
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+			<div class="row mb-3">
+				<div class="col-sm-4 mx-auto">
+					<button type="submit" id="saveBtn" class="btn btn-primary">Save
+						User Roles</button>
+				</div>
+			</div>
+		</div> -->
+
+		<div class="container p-2">
+
+			<!-- Role Dropdown -->
+			<div class="row mb-3 mt-3">
+				<label class="col-sm-2 col-form-label text-end">Select Role:</label>
+				<div class="col-sm-4">
+					<select id="roleSelect" class="form-select">
+						<option value="">-- Select Role --</option>
+						<option th:each="role : ${roles}" th:value="${role.roleId}"
+							th:text="${role.roleName}"></option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Menu Tree -->
+			<div class="row mb-3">
+				<label class="col-sm-2 col-form-label text-end">Assign
+					Menus:</label>
+				<div class="col-sm-4">
+					<div id="menuTree">--Menus not assign--</div>
+				</div>
+			</div>
+
+			<!-- CSRF -->
+			<input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" /> <input type="hidden" id="csrfHeader"
+				th:value="${_csrf.headerName}" />
+
+			<!-- BUTTON -->
+			<div class="row mb-3">
+				<div class="col-sm-4 mx-auto">
+					<button type="button" id="saveBtn" class="btn btn-primary">
+						Save User Roles</button>
+				</div>
+			</div>
+
 		</div>
-		<button id="saveBtn" class="btn btn-primary mt-3">Save</button>
-	</fieldset>
-
-
-</section>
-
+	</section>
+	<!-- JS Fragment -->
+	<th:block
+		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+</body>
 </html>
 

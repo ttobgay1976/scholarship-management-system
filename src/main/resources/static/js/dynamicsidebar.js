@@ -102,6 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 */
 
+
+
+/*
 document.addEventListener("DOMContentLoaded", function () {
 
     const menuItems = document.querySelectorAll(".menu-item");
@@ -171,5 +174,198 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     });
+
+});
+
+*/
+
+/** Todays changes */
+/*
+
+document.addEventListener("DOMContentLoaded", function () {
+    const menuContainer = document.getElementById("menus");
+    if (!menuContainer) return;
+
+    const currentUrl = window.location.pathname;
+
+    function clearMenuState() {
+        menuContainer.querySelectorAll(".menu-item, .menu-link, .submenu-link").forEach(el => {
+            el.classList.remove("open", "active");
+        });
+    }
+
+    function applyActiveMenu() {
+        clearMenuState();
+
+        let activeLink = null;
+
+        const menuItems = menuContainer.querySelectorAll(".menu-item");
+
+        menuItems.forEach(item => {
+            const childLinks = item.querySelectorAll(":scope .submenu li a");
+            childLinks.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href && currentUrl.startsWith(href)) {
+                    activeLink = link;
+                }
+            });
+
+            const singleLink = item.querySelector(":scope > .menu-link.single-link");
+            if (singleLink) {
+                const href = singleLink.getAttribute("href");
+                if (href && currentUrl.startsWith(href)) {
+                    activeLink = singleLink;
+                }
+            }
+        });
+
+        if (activeLink) {
+            activeLink.classList.add("active");
+
+            let parentMenu = activeLink.closest(".menu-item");
+            while (parentMenu) {
+                parentMenu.classList.add("open", "active");
+                parentMenu = parentMenu.parentElement.closest(".menu-item");
+            }
+        }
+    }
+
+    menuContainer.addEventListener("click", function (e) {
+        const parentLink = e.target.closest(".menu-item > .menu-link");
+        if (!parentLink) return;
+
+        const item = parentLink.closest(".menu-item");
+        const submenu = item.querySelector(":scope > .submenu");
+
+        if (submenu) {
+            e.preventDefault();
+
+            const isOpen = item.classList.contains("open");
+
+            Array.from(item.parentElement.children).forEach(sibling => {
+                if (sibling !== item) {
+                    sibling.classList.remove("open");
+                }
+            });
+
+            if (isOpen) {
+                item.classList.remove("open");
+            } else {
+                item.classList.add("open");
+            }
+        }
+    });
+
+    applyActiveMenu();
+});
+
+*/
+
+/**Added today */
+document.addEventListener("DOMContentLoaded", function () {
+
+    /**
+     * ==============================
+     * 1. LOAD PAGE INTO CONTENT AREA
+     * ==============================
+     */
+    function attachLoadEvents() {
+
+        document.querySelectorAll(".load-page").forEach(link => {
+
+            link.removeEventListener("click", handleLoadClick);
+            link.addEventListener("click", handleLoadClick);
+        });
+    }
+
+    function handleLoadClick(e) {
+        e.preventDefault();
+
+        const url = this.getAttribute("data-url");
+        if (!url) return;
+
+        // loading indicator
+        document.getElementById("section").innerHTML =
+            "<h4>Loading...</h4>";
+
+        fetch(url)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("section").innerHTML = html;
+
+                // active child highlight
+                document.querySelectorAll(".load-page")
+                    .forEach(m => m.classList.remove("active"));
+
+                this.classList.add("active");
+
+                // 🔥 highlight parent also
+                const parentMenu = this.closest(".menu-item").querySelector(".menu-link");
+                if (parentMenu) {
+                    document.querySelectorAll(".menu-link")
+                        .forEach(m => m.classList.remove("active-parent"));
+
+                    parentMenu.classList.add("active-parent");
+                }
+
+                // re-init events if new content has JS
+                attachLoadEvents();
+            })
+            .catch(() => {
+                document.getElementById("section").innerHTML =
+                    "<h3>Failed to load page</h3>";
+            });
+    }
+
+
+    /**
+     * ==============================
+     * 2. MENU EXPAND / COLLAPSE (ACCORDION FIXED)
+     * ==============================
+     */
+    document.querySelectorAll(".menu-link").forEach(menu => {
+
+        menu.addEventListener("click", function () {
+
+            const submenu = this.nextElementSibling;
+
+            // skip if no submenu (single menu)
+            if (!submenu || !submenu.classList.contains("submenu")) return;
+
+            const isOpen = submenu.classList.contains("open");
+
+            // 🔴 CLOSE ALL MENUS
+            document.querySelectorAll(".submenu").forEach(sub => {
+                sub.classList.remove("open");
+            });
+
+            document.querySelectorAll(".menu-link").forEach(m => {
+                m.classList.remove("active-parent");
+            });
+
+            document.querySelectorAll(".arrow").forEach(a => {
+                a.classList.remove("rotated");
+            });
+
+            // 🟢 OPEN CURRENT (if previously closed)
+            if (!isOpen) {
+                submenu.classList.add("open");
+                this.classList.add("active-parent");
+
+                const arrow = this.querySelector(".arrow");
+                if (arrow) arrow.classList.add("rotated");
+            }
+
+        });
+
+    });
+
+
+    /**
+     * ==============================
+     * INIT
+     * ==============================
+     */
+    attachLoadEvents();
 
 });

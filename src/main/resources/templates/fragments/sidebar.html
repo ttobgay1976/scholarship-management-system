@@ -27,37 +27,30 @@
 		</ul>
 	</li> -->
 
-<!-- 	<ul class="nav flex-column ms-3">
+		<ul class="nav flex-column ms-3">
 		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/fundingagencyfrm">Add Funding Agency</a></li>
-		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/fundingagencylst">Funding Agency List</a></li>
-		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/scholarshipprogramregistrationfrm">Scholarship
-				Program Reg.</a></li>
-		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/scholarshipprogramregistrationlst">Scholarship
-				Program Reg. List</a></li>
-		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/bankregistrationfrm">Bank Registration Form</a></li>
-		<li class="nav-item"><a class="nav-link child-menu"
-			href="/master/bankregistrationlstfrm">Bank Registered List</a></li>
-	</ul> -->
+			href="/service/scholarshipregistrationapplst">Scholarship Reg. List</a></li>
+	
+	</ul>
+
+
+
+
 	<!-- This is working from to display the dynamic menu to sidebar on dashboard
 	dated : 01/04/2026
  -->
 
-	<ul class="sidebar-menu" id="menus">
+	<!-- 	<ul class="sidebar-menu" id="menus">
 		<li th:each="menu : ${menus}" class="menu-item"
 			th:data-id="${menu.id}">
-			<!-- Parent Menu (expandable) --> <a href="javascript:void(0);"
+			Parent Menu (expandable) <a href="javascript:void(0);"
 			class="menu-link"
 			th:if="${menu.children != null and !menu.children.isEmpty()}"> <span
 				th:text="${menu.menuName}"></span> <span class="arrow">▶</span>
-		</a> <!-- Single Link Menu --> <a th:href="@{${menu.menuUrl}}"
+		</a> Single Link Menu <a th:href="@{${menu.menuUrl}}"
 			class="menu-link single-link"
 			th:if="${menu.children == null or menu.children.isEmpty()}"
-			th:text="${menu.menuName}"></a> <!-- Child Menus -->
+			th:text="${menu.menuName}"></a> Child Menus
 			<ul class="submenu"
 				th:if="${menu.children != null and !menu.children.isEmpty()}">
 				<li th:each="child : ${menu.children}" th:data-id="${child.id}">
@@ -67,6 +60,56 @@
 			</ul>
 		</li>
 	</ul>
+ -->
 
+	<!-- Today changes -->
+
+	<!-- 	<ul class="sidebar-menu" id="menus">
+		<li th:each="menu : ${menus}" class="menu-item">
+			Parent <a href="#" class="menu-link load-page"
+			th:if="${menu.children == null or menu.children.isEmpty()}"
+			th:data-url="${menu.menuUrl}" th:text="${menu.menuName}"> </a> Parent expandable
+			<a href="javascript:void(0);" class="menu-link"
+			th:if="${menu.children != null and !menu.children.isEmpty()}"> <span
+				th:text="${menu.menuName}"></span> <span class="arrow">▶</span>
+		</a> Children
+			<ul class="submenu"
+				th:if="${menu.children != null and !menu.children.isEmpty()}">
+
+				<li th:each="child : ${menu.children}"><a href="#"
+					class="submenu-link load-page" th:data-url="${child.menuUrl}"
+					th:text="${child.menuName}"> </a></li>
+
+			</ul>
+
+		</li>
+
+	</ul> -->
+
+	<ul class="sidebar-menu" id="menus">
+
+		<li th:each="menu : ${menus}" class="menu-item">
+			<!-- SINGLE MENU (NO CHILDREN) --> <a
+			th:if="${menu.children == null or menu.children.isEmpty()}"
+			th:href="@{${menu.menuUrl}}" target="contentFrame" class="menu-link"
+			th:text="${menu.menuName}"> </a> <!-- PARENT MENU (NO CLICK ACTION, JUST LABEL) -->
+			<div th:if="${menu.children != null and !menu.children.isEmpty()}"
+				class="menu-link parent-menu">
+
+				<span th:text="${menu.menuName}"></span> <span class="arrow">▶</span>
+
+			</div> <!-- CHILD MENU -->
+			<ul class="submenu"
+				th:if="${menu.children != null and !menu.children.isEmpty()}">
+
+				<li th:each="child : ${menu.children}"><a
+					th:href="@{${child.menuUrl}}" target="contentFrame"
+					class="submenu-link" th:text="${child.menuName}"> </a></li>
+
+			</ul>
+
+		</li>
+
+	</ul>
 
 </nav>

@@ -1,5 +1,7 @@
 package com.sprms.system.hbmbeans;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,14 +17,18 @@ public class Schools {
     @Column(name = "school_name")
     private String schoolName;
     
-    @Column(name="school_location")
+    @Column(name="location")
     private String schoolLocation;
 
     @Column(name = "school_code")
     private String schoolCode;
 
     @Column(name = "school_type")
-    private String schoolType; // e.g., Public, Private
+    private String schoolType;
+    
+	private LocalDateTime createdat;
+	private LocalDateTime updateat;
+	private int status;
 
 
 	public Long getId() {
@@ -64,6 +70,30 @@ public class Schools {
 
 	public void setSchoolLocation(String schoolLocation) {
 		this.schoolLocation = schoolLocation;
+	}
+
+	public LocalDateTime getCreatedat() {
+		return createdat;
+	}
+
+	public void setCreatedat(LocalDateTime createdat) {
+		this.createdat = createdat;
+	}
+
+	public LocalDateTime getUpdateat() {
+		return updateat;
+	}
+
+	public void setUpdateat(LocalDateTime updateat) {
+		this.updateat = updateat;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
     
     

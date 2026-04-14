@@ -34,12 +34,26 @@ For exporting the information in XLS, PDF WORD
 
  -->
 <th:block th:fragment="common_resource_js">
+
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+		
+	<!--This is use for the data table  -->
+	<script
+		src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+		
 	<!-- Your sidebar JS -->
-<!-- 	<script th:src="@{/js/sidebar.js}"></script> -->
+	<!-- 	<script th:src="@{/js/sidebar.js}"></script> -->
 	<script th:src="@{/js/dynamicsidebar.js}"></script>
-	
-	<script src="https://kit.fontawesome.com/c63e4ce342.js" crossorigin="anonymous"></script>
+	<script th:src="@{/js/countrystatecitypopulate.js}"></script>
+
+	<script src="https://kit.fontawesome.com/c63e4ce342.js"
+		crossorigin="anonymous"></script>
+
+
+	<!--  Form level JS callinmg -->
+
+	<script th:src="@{/js/formlevel.js}"></script>
+	<script th:src="@{/js/globalPageRedirect.js}"></script>
 </th:block>

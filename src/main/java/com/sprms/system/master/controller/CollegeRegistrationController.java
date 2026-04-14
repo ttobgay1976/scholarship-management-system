@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -63,7 +64,6 @@ public class CollegeRegistrationController {
 
 		// get all the countries
 		List<Country> lstCountry = _countryServices.getCountries();
-
 		model.addAttribute("lstcountry", _countryFrmBeanMapper.toFrmBean(lstCountry));
 
 		return DISPLAY_COLLAGE_REGISTRATION_FRM;
@@ -96,6 +96,8 @@ public class CollegeRegistrationController {
 		return "redirect:/college/registrationfrm";
 	}
 
+	//get the college registration detial
+	
 	@GetMapping("/lstcolleges")
 	public String getColleges(Model model) {
 
@@ -109,4 +111,52 @@ public class CollegeRegistrationController {
 
 		return DISPLAY_COLLAGE_LIST;
 	}
+	
+	//edit the college registration Information
+	//date : 08/04/2026
+	@GetMapping("/registration/edit/{id}")
+	public String editCollegeRegistration(@PathVariable Long id, Model model) {
+		
+		logger.info("@@@Calling the editCollegeRegistration....................");
+		
+		try {
+			
+			//get the college details
+			CollegesDTO collegesDTO = _collegeRegistrationServices.getCollegeById(id);
+			model.addAttribute("collegefrmbean", collegesDTO);
+			
+			// get all the countries
+			List<Country> lstCountry = _countryServices.getCountries();
+			model.addAttribute("lstcountry", _countryFrmBeanMapper.toFrmBean(lstCountry));
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getMessage();
+		}
+		
+		return DISPLAY_COLLAGE_REGISTRATION_FRM;
+	}
+	
+	//delete the college from the list/tablr
+	//created 08/04/2026
+	@GetMapping("/registration/delete/{id}")
+	public String deleteCollege(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+		logger.info("@@@Calling the deleteSchool proc.....................");
+		
+		try {
+			
+			//check and delete the registration from the data
+			
+			_collegeRegistrationServices.deleteCollegeById(id);
+			
+			redirectAttributes.addFlashAttribute("message", "College information deleted successfully.");
+		} catch (Exception e) {
+			
+			redirectAttributes.addFlashAttribute("message", "Delete failed: " + e.getMessage());
+		}
+
+		return "redirect:/college/lstcolleges";
+	}
+	
 }

@@ -9,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+
 import com.sprms.system.user.services.UserService;
 
 @Configuration
@@ -36,7 +38,14 @@ public class SecurityConfig {
 				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout")
 						.invalidateHttpSession(true) // clear session
 						.clearAuthentication(true) // clear authentication
-						.deleteCookies("JSESSIONID"));
+						.deleteCookies("JSESSIONID"))
+		
+		        // 🚨 THIS IS THE IMPORTANT PART (ENABLE IFRAME)
+				// ✅ IFRAME FIX (CORRECT VERSION)
+		        .headers(headers ->
+		            headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+		        );
+				
 
 		return http.build();
 
@@ -65,5 +74,6 @@ public class SecurityConfig {
 	 * .userDetailsService(_userService) .passwordEncoder(passwordEncoder()) .and()
 	 * .build(); }
 	 */
+
 
 }

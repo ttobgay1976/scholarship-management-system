@@ -1,73 +1,17 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/dashboard}">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="UTF-8">
+
 <th:block
 	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
 
-
-<script type="text/javascript">
-	
-	document.addEventListener("DOMContentLoaded", function () {
-	//First combo selection
-	    const userSelect = document.getElementById("userSelect");
-
-	    userSelect.addEventListener("change", function () {
-	        const userId = this.value;
-
-	        // 1. Uncheck all roles first
-	        document.querySelectorAll("input[name='roleIds']")
-	            .forEach(cb => cb.checked = false);
-
-	        if (!userId) return;
-	        //alert("@@@User selected :"+ userId);
-	        // 2. Fetch assigned roles
-	        fetch('/api/userroles?userId=' + userId)
-	            .then(res => res.json())
-	            .then(roleIds => {
-
-	                roleIds.forEach(roleId => {
-	                    const checkbox = document.getElementById("role-" + roleId);
-	                    if (checkbox) {
-	                        checkbox.checked = true;
-	                    }
-	                });
-
-	            })
-	            .catch(err => console.error("Error:", err));
-	    });
-	    
-	    
-	    //this os for second checkbox validation
-	    
-	    document.getElementById("userSelect").addEventListener("change", function () {
-
-	        const userId = this.value;
-		
-	        if (!userId) return;
-	    	//alert("@@@User selected :"+ userId);
-	        fetch(`/api/user/${userId}/roles`)
-	            .then(response => response.json())
-	            .then(data => {
-
-	                // Uncheck all first
-	                document.querySelectorAll(".role-checkbox").forEach(cb => cb.checked = false);
-
-	                // Check assigned roles
-	                data.forEach(roleId => {
-	                    const checkbox = document.querySelector(`.role-checkbox[value='${roleId}']`);
-	                    if (checkbox) checkbox.checked = true;
-	                });
-	            });
-	    });
-});
-</script>
 </head>
 <body>
 	<section layout:fragment="content">
-		<div class="container p-2 bg-body-secondary">Role Mapping</div>
+		<div class="container p-2 bg-body-secondary">User Role
+			Management Page</div>
 		<div class="container p-4">
 			<!-- Success message -->
 
@@ -78,14 +22,14 @@
 			<form th:action="@{/user/userrolemap}" th:object="${userrolemap}"
 				method="post" autocomplete="off" id="userRolemap">
 				<div class="row mb-3">
-					<label for="id" class="col-sm-2 col-form-label"> ID</label>
+					<label for="id" class="col-sm-2 col-form-label text-end"> ID:</label>
 					<div class="col-sm-4">
 						<input type="text" th:field="*{id}" id="id" class="form-control"
 							placeholder="Auto Update" disabled="disabled">
 					</div>
 				</div>
 				<div class="row mb-3">
-					<label for="users" class="col-sm-2 col-form-label">User </label>
+					<label for="users" class="col-sm-2 col-form-label text-end">User Namw/ID: </label>
 					<div class="col-sm-4">
 						<select id="userSelect" name="id" class="form-select">
 							<option value="" selected>Select User</option>
@@ -95,13 +39,14 @@
 					</div>
 				</div>
 				<div class="row mb-3">
-					<label for="role" class="col-sm-2 col-form-label">Role </label>
+					<label for="role" class="col-sm-2 col-form-label text-end">Assign Role: </label>
 					<div class="col-sm-4" id="rolesContainer">
 						<fieldset class="border p-2">
 							<legend class="w-auto fs-5">Asign Roles </legend>
 							<div th:each="role : ${roles}">
-								<input type="checkbox" class="role-checkbox" th:id="'role-' + ${role.roleId}"
-									th:name="roleIds" th:value="${role.roleId}" />
+								<input type="checkbox" class="role-checkbox"
+									th:id="'role-' + ${role.roleId}" th:name="roleIds"
+									th:value="${role.roleId}" />
 								<!-- value submitted -->
 								<label th:for="'role-' + ${role.roleId}"
 									th:text="${role.roleName}"></label>
@@ -122,6 +67,7 @@
 			</form>
 		</div>
 	</section>
+	<!-- JS Fragment -->
 	<th:block
 		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
 </body>

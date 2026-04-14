@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import com.sprms.system.frmbeans.BankDTO;
 import com.sprms.system.frmbeans.FundingAgencyDTO;
 import com.sprms.system.frmbeans.ScholarshipProgramDTO;
 import com.sprms.system.hbmbeans.College;
+import com.sprms.system.hbmbeans.FundingAgency;
 import com.sprms.system.master.dao.BankRepository;
 import com.sprms.system.master.services.BankServices;
 import com.sprms.system.master.services.CollegeRegistrationServices;
@@ -55,7 +57,7 @@ public class CommonMastersController {
 		this._fundingAgencyService = fundingAgencyService;
 		this._scholarshipProgramService = scholarshipProgramService;
 		this._collegeRegistrationServices = collegeRegistrationServices;
-		this._bankServices=bankServices;
+		this._bankServices = bankServices;
 
 	}
 
@@ -75,6 +77,8 @@ public class CommonMastersController {
 	public String saveFundingAgency(@ModelAttribute("fundingaagencydto") FundingAgencyDTO fundingAgencyDTO,
 			RedirectAttributes redirectAttributes) {
 
+		logger.info("@@@Calling the saveFundingAgency proc...............");
+
 		FundingAgencyDTO saved = _fundingAgencyService.saveFundingAgency(fundingAgencyDTO);
 
 		// check the save status
@@ -84,7 +88,7 @@ public class CommonMastersController {
 			redirectAttributes.addFlashAttribute("message", "Failed to save the Information, try again");
 		}
 
-		return "redirect:/master/findingagencyfrm";
+		return "redirect:/master/fundingagencyfrm";
 	}
 
 	// get the agency list
@@ -99,10 +103,40 @@ public class CommonMastersController {
 		return DISPLAY_FUNDING_AGENCY_LIST_FRM;
 	}
 
+	// edit the FundingAgency data by calling the fundingAgency Id
+	/// date 07/04/2026
+
+	@GetMapping("/fundingagency/edit/{id}")
+	public String editFundingRegistration(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+
+		logger.info("@@@Calling the editFundingRegistration proc....................");
+
+		FundingAgencyDTO fundingAgencyDTO = _fundingAgencyService.getFundingAgencyById(id);
+
+		System.out.println("@@@Value fetch :" + fundingAgencyDTO.getFundingAgencyName());
+
+		model.addAttribute("fundingaagencydto", fundingAgencyDTO);
+
+		return DISPLAY_FUNDING_AGENCY_REGISTRATION_FRM;
+	}
+
+	// delete the Agency registration
+	// date : 07/04*/2026
+	@GetMapping("/fundingagency/delete/{id}")
+	public String deleteFundingAgency(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+		_fundingAgencyService.deleteFundingAgency(id);
+
+		redirectAttributes.addFlashAttribute("message", "Deleted successfully");
+
+		return "redirect:/master/fundingagencylst";
+	}
+
+	
 	// Scholarship Program Details
 	// created on dt /05/04/2026
 	// place : at home
-
+	
 	// get the Scholarship Program Registration form
 	@GetMapping("/scholarshipprogramregistrationfrm")
 	public String getScholarshipProgramRegistrationFrm(Model model) {
@@ -150,6 +184,37 @@ public class CommonMastersController {
 
 		return DISPLAY_SCHLOARSHIP_PROGRAM_REG_LIST_FRM;
 	}
+	
+	// edit the scholarshipprogramregistration data by calling the registration Id
+	// date 07/04/2026
+	@GetMapping("/scholarshipprogramregistration/edit/{id}")
+	public String editScholarshipprogramregistration(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+
+		logger.info("@@@Calling the editFundingRegistration proc....................");
+
+		ScholarshipProgramDTO scholarshipProgramDTO = _scholarshipProgramService.getById(id);
+		model.addAttribute("scholarshipProgramdto", scholarshipProgramDTO);
+		
+		List<FundingAgencyDTO> fundingagencylst = _fundingAgencyService.getAllFundingAgencies();
+		model.addAttribute("fundingagencylst", fundingagencylst);
+
+		return DISPLAY_SCHLOARSHIP_PROGRAM_REG_FRM;
+	}
+	
+	// delete the Scholarship registration
+	// date : 07/04*/2026
+	@GetMapping("/scholarshipprogramregistration/delete/{id}")
+	public String deleteScholarshipRegistrationProgram(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+		logger.info("@@@Calling the deleteScholarshipRegistrationProgram proc...........");
+		
+		_scholarshipProgramService.deleteScholarshipProgram(id);
+
+		redirectAttributes.addFlashAttribute("message", "Deleted successfully");
+
+		return "redirect:/master/scholarshipprogramregistrationlst";
+	}
+	
 
 	// Bank Registration Form
 	// This form will map the College and it banks details
@@ -160,6 +225,7 @@ public class CommonMastersController {
 
 		model.addAttribute("bank", new BankDTO());
 
+	    //colleges details to dropdown
 		List<College> colleges = _collegeRegistrationServices.getAllColleges();
 		model.addAttribute("colleges", colleges);
 
@@ -175,29 +241,58 @@ public class CommonMastersController {
 
 		try {
 			// check and save the information
-			
-			System.out.println("@@@Check the Account No:"+ bankDTO.getAccountNo());
-			
 			_bankServices.saveCollegeBank(bankDTO);
-			redirectAttributes.addFlashAttribute("message","Information save successfully.");
-			
+			redirectAttributes.addFlashAttribute("message", "Information save successfully.");
+
 		} catch (Exception e) {
 			// TODO: handle exception
-			redirectAttributes.addFlashAttribute("message","information could not be saved");
+			redirectAttributes.addFlashAttribute("message", "information could not be saved "+e.getMessage());
 		}
-
 
 		return "redirect:/master/bankregistrationfrm";
 	}
 
-	//list the Registered bank with colleges
+	// list the Registered bank with colleges
 	@GetMapping("/bankregistrationlstfrm")
 	public String getRegisteredBankDetails(Model model) {
-	
+
 		logger.info("@@@Callin the getRegisteredBankDetails proc...............");
-		
+
 		model.addAttribute("banks", _bankServices.getAllRegisteredBanks());
-		
+
 		return DISPLAY_BANK_REGISTRATION_LIST_FRM;
+	}
+	
+	//bank Edit option
+	//created on 07/04/2026
+	@GetMapping("/bankregistration/edit/{id}")
+	public String editBankRegistration(@PathVariable Long id, Model model) {
+
+	    logger.info("@@@Calling editBankRegistration................");
+
+	    BankDTO dto = _bankServices.getByID(id);
+
+	    model.addAttribute("bank", dto);
+	    
+	    //colleges details to dropdown
+		List<College> colleges = _collegeRegistrationServices.getAllColleges();
+		model.addAttribute("colleges", colleges);
+		
+
+	    return DISPLAY_BANK_REGISTRATION_FRM;
+	}
+	
+	//delete the Bank Registration
+	@GetMapping("/bankregistration/delete/{id}")
+	public String deleteBank(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+		try {
+			_bankServices.deleteBankById(id);
+			redirectAttributes.addFlashAttribute("message", "Deleted successfully");
+		} catch (Exception e) {
+			redirectAttributes.addFlashAttribute("message", "Delete failed: " + e.getMessage());
+		}
+
+		return "redirect:/master/bankregistrationlstfrm";
 	}
 }

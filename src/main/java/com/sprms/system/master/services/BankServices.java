@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.sprms.system.frmbeans.BankDTO;
 import com.sprms.system.frmbeans.CollegesDTO;
@@ -29,50 +31,77 @@ public class BankServices {
 	private final CollegeRegistrationRepository _collegeRegistrationRepository;
 
 	// constructor
-	public BankServices(BankRepository bakBankRepository,CollegeRegistrationRepository collegeRegistrationRepository) {
+	public BankServices(BankRepository bakBankRepository, CollegeRegistrationRepository collegeRegistrationRepository) {
 		this._bankRepository = bakBankRepository;
-		this._collegeRegistrationRepository=collegeRegistrationRepository;
+		this._collegeRegistrationRepository = collegeRegistrationRepository;
 	}
-	
-	//save the Bank and College details
-	//created on : 06/04/2026
-	public BankDTO saveCollegeBank( BankDTO dto) {
-		
+
+	// new produre to save Edited data and new data insertion from the same rendered
+	// form
+	// dated 07/04/2026
+	public BankDTO saveCollegeBank(BankDTO bankDTO) {
+
 		logger.info("@@@Calling the saveCollegeBank proc...................");
-		
-		// Fetch related entities
-		
-		College college =null;
-		if (dto.getCollegeId() != null) {
-			college = _collegeRegistrationRepository.findById(dto.getCollegeId())
+
+		College college = null;
+		if (bankDTO.getCollegeId() != null) {
+			college = _collegeRegistrationRepository.findById(bankDTO.getCollegeId())
 					.orElseThrow(() -> new RuntimeException("College not found"));
 		}
-		
-		// Convert DTO → Entity
-		Bank bank = BankDTOMapper.toEntity(dto, college);
-		
-		// Set ID
-		if (bank.getId() == null) { // New record
-			bank.setId(Long.parseLong(DateUtil.getUniqueID()));
+
+		Bank entity;
+		if (bankDTO.getId() != null) {
+
+			// Edit existing
+			entity = _bankRepository.findById(bankDTO.getId())
+					.orElseThrow(() -> new RuntimeException("Bank not found with id: " + bankDTO.getId()));
+
+			entity.setCollege(college);
+			entity.setAccountHolderName(bankDTO.getAccountHolderName());
+			entity.setBankName(bankDTO.getBankName());
+			entity.setBranchName(bankDTO.getBranchName());
+			entity.setAccountNo(bankDTO.getAccountNo());
+			entity.setIfscSwiftCode(bankDTO.getIfscSwiftCode());
+			entity.setUpdatedat(DateUtil.getCurrentDateTime());
+
+		} else {
+			// New insert
+			entity = BankDTOMapper.toEntity(bankDTO, college);
+			entity.setId(Long.parseLong(DateUtil.getUniqueID()));
+			entity.setCreatedat(DateUtil.getCurrentDateTime());
 		}
-		// set timestamps
-		bank.setCreatedat(DateUtil.getCurrentDateTime());
 
-		// 4️⃣ Save entity
-		Bank savedBank = _bankRepository.save(bank);
+		entity = _bankRepository.save(entity);
 
-		// 5️⃣ Convert back to DTO for response
-		BankDTO responseDTO = BankDTOMapper.toDTO(savedBank);
-		
-		return responseDTO;
+		return BankDTOMapper.toDTO(entity);
 	}
-	
-	//get all the registered Banks with Colleges
+
+	// get all the registered Banks with Colleges
 	public List<BankDTO> getAllRegisteredBanks() {
-		
+
 		logger.info("@@@Calling this getAllRegisteredBanks proc...............");
+
+		return _bankRepository.findAll().stream().map(BankDTOMapper::toDTO).collect(Collectors.toList());
+	}
+
+	//get Bank by Id
+	public BankDTO getByID(Long id) {
+
+		logger.info("@@@Calling getByID for Bank...............");
+
+		Bank entity = _bankRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Bank not found with id: " + id));
+
+		return BankDTOMapper.toDTO(entity);
+	}
+
+	//delete the Bank Registration
+	public void deleteBankById(Long id) {
 		
-		return _bankRepository.findAll().stream().map(BankDTOMapper::toDTO)
-				.collect(Collectors.toList());
+		logger.info("@@@Calling the deleteBankById.....................");
+		
+	    Bank entity = _bankRepository.findById(id)
+	        .orElseThrow(() -> new RuntimeException("Not found"));
+	    _bankRepository.delete(entity);
 	}
 }

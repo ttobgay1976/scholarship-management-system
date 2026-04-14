@@ -30,46 +30,58 @@ public class FundingAgencyServiceImpl implements FundingAgencyService {
 		this._fundingAgencyMapper = fundingAgencyMapper;
 	}
 
+	// Modified Saving new data and edit data procedure
+	// date : 07/04/2026
 	@Override
 	public FundingAgencyDTO saveFundingAgency(FundingAgencyDTO fundingAgencyDTO) {
-		
+
 		logger.info("@@@Calling this saveFundingAgency proc...............");
-		
-		FundingAgency entity = _fundingAgencyMapper.toEntity(fundingAgencyDTO);
-		
-		//set the ID and other fields
-		entity.setId(Long.parseLong(DateUtil.getUniqueID()));
-		entity.setCreatedAt(DateUtil.getCurrentDateTime());
-		
-		
+
+		FundingAgency entity;
+
+		if (fundingAgencyDTO.getId() != null) {
+			entity = _fundingAgencyRepository.findById(fundingAgencyDTO.getId()).orElseThrow(
+					() -> new RuntimeException("Funding Agency not found with id: " + fundingAgencyDTO.getId()));
+
+			entity.setFundingAgencyName(fundingAgencyDTO.getFundingAgencyName());
+			entity.setDescription(fundingAgencyDTO.getDescription());
+			entity.setUpdateAt(DateUtil.getCurrentDateTime());
+
+		} else {
+			entity = _fundingAgencyMapper.toEntity(fundingAgencyDTO);
+			entity.setId(Long.parseLong(DateUtil.getUniqueID()));
+			entity.setCreatedAt(DateUtil.getCurrentDateTime());
+		}
+
 		entity = _fundingAgencyRepository.save(entity);
-		
+
 		return _fundingAgencyMapper.toDTO(entity);
 	}
 
+
 	@Override
 	public FundingAgencyDTO getFundingAgencyById(Long id) {
-		
+
 		logger.info("@@@Calling this getFundingAgencyById proc...............");
-		
+
 		return _fundingAgencyRepository.findById(id).map(_fundingAgencyMapper::toDTO)
 				.orElseThrow(() -> new RuntimeException("FundingAgency not found with id: " + id));
 	}
 
 	@Override
 	public List<FundingAgencyDTO> getAllFundingAgencies() {
-		
+
 		logger.info("@@@Calling this getAllFundingAgencies proc...............");
-		
+
 		return _fundingAgencyRepository.findAll().stream().map(_fundingAgencyMapper::toDTO)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public FundingAgencyDTO updateFundingAgency(Long id, FundingAgencyDTO fundingAgencyDTO) {
-		
+
 		logger.info("@@@Calling this updateFundingAgency proc...............");
-		
+
 		FundingAgency existing = _fundingAgencyRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("FundingAgency not found with id: " + id));
 
@@ -83,12 +95,13 @@ public class FundingAgencyServiceImpl implements FundingAgencyService {
 
 	@Override
 	public void deleteFundingAgency(Long id) {
-		
+
 		logger.info("@@@Calling this deleteFundingAgency proc...............");
-		
+
 		if (!_fundingAgencyRepository.existsById(id)) {
 			throw new RuntimeException("FundingAgency not found with id: " + id);
 		}
+		
 		_fundingAgencyRepository.deleteById(id);
 	}
 

@@ -1,50 +1,54 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layouts/dashboard}">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
 
-<section layout:fragment="content">
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
 
-	<div class="container p-2 bg-body-secondary">Scholarship Program
-		List</div>
+</head>
+<body>
 
-	<div class="container mt-3">
-		<table class="table table-bordered table-hover mt-3">
-			<thead class="table-dark">
-				<tr>
-					<th>Id</th>
-					<th>Scholarship Program Name</th>
-					<th>Funding Agency Name</th>
-					<th>Slots Available.</th>
-					<th>Status</th>
-					<th>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="schpro : ${scholarshipprogramlst}">
-					<td th:text="${schpro.id}"></td>
-					<td th:text="${schpro.scholarshipProgramName}"></td>
-					<td th:text="${schpro.fundingAgencyName}"></td>
-					<td th:text="${schpro.scholarshipAvailableSlots}"></td>
-					<td th:text="Active"></td>
-					<td><a th:href="@{/master/edit/{id}(id=${schpro.id})}"
-						class="btn btn-primary btn-sm">Edit</a> <a
-						th:href="@{/master/delete/{id}(id=${schpro.id})}"
-						class="btn btn-danger btn-sm"
-						onclick="return confirm('Are you sure you want to delete this record?');">
-							Delete </a></td>
+	<section layout:fragment="content">
 
-					<!-- 					<td><a th:href="@{/master/edit/{id}(id=${lstM.Id})}"
-						class="btn btn-primary btn-sm">Edit</a> <a
-						th:href="@{/master/delete/{id}(id=${lstM.Id})}"
-						class="btn btn-danger btn-sm"
-						onclick="return confirm('Are you sure you want to delete this record?');">
-							Delete </a></td> -->
-				</tr>
-			</tbody>
-		</table>
-	</div>
+		<div class="container p-2 bg-body-secondary">Scholarship Program
+			List Page</div>
 
-</section>
+		<div class="container mt-3">
+			<table class="table table-bordered table-hover mt-3">
+				<thead class="table-dark">
+					<tr>
+						<th>Id</th>
+						<th>Scholarship Program Name</th>
+						<th>Funding Agency Name</th>
+						<th>Slots Available.</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="schpro : ${scholarshipprogramlst}">
+						<td th:text="${schpro.id}"></td>
+						<td th:text="${schpro.scholarshipProgramName}"></td>
+						<td th:text="${schpro.fundingAgencyName}"></td>
+						<td th:text="${schpro.scholarshipAvailableSlots}"></td>
+						<td th:text="Active"></td>
+						<td><a
+							th:href="@{/master/scholarshipprogramregistration/edit/{id}(id=${schpro.id})}"
+							class="btn btn-primary btn-sm">Edit</a> <a
+							th:href="@{/master/scholarshipprogramregistration/delete/{id}(id=${schpro.id})}"
+							class="btn btn-danger btn-sm"
+							onclick="return confirm('Are you sure you want to delete this record?');">
+								Delete </a></td>
 
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</section>
+	<!-- JS Fragment -->
+	<th:block
+		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+</body>
 </html>
