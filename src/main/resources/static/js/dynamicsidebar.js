@@ -262,6 +262,8 @@ document.addEventListener("DOMContentLoaded", function () {
 */
 
 /**Added today */
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
     /**
@@ -332,29 +334,33 @@ document.addEventListener("DOMContentLoaded", function () {
             // skip if no submenu (single menu)
             if (!submenu || !submenu.classList.contains("submenu")) return;
 
+		const arrow = this.querySelector(".arrow");
             const isOpen = submenu.classList.contains("open");
-
+            
             // 🔴 CLOSE ALL MENUS
             document.querySelectorAll(".submenu").forEach(sub => {
                 sub.classList.remove("open");
             });
 
+/** 
             document.querySelectorAll(".menu-link").forEach(m => {
                 m.classList.remove("active-parent");
             });
-
+            
+*/
             document.querySelectorAll(".arrow").forEach(a => {
                 a.classList.remove("rotated");
             });
 
-            // 🟢 OPEN CURRENT (if previously closed)
-            if (!isOpen) {
-                submenu.classList.add("open");
-                this.classList.add("active-parent");
-
-                const arrow = this.querySelector(".arrow");
-                if (arrow) arrow.classList.add("rotated");
-            }
+            // TOGGLE CURRENT
+		if (!isOpen) {
+		    submenu.classList.add("open");
+		    this.classList.add("active-parent");
+		
+		    if (arrow) {
+		        arrow.classList.add("rotated");
+		    }
+		}
 
         });
 

@@ -64,12 +64,12 @@
 
 	<!-- Today changes -->
 
-	<!-- 	<ul class="sidebar-menu" id="menus">
-		<li th:each="menu : ${menus}" class="menu-item">
-			Parent <a href="#" class="menu-link load-page"
+<!-- 	<ul class="sidebar-menu" id="menus">
+		<li th:each="menu : ${menus}" class="menu-item">Parent <a
+			href="#" class="menu-link load-page"
 			th:if="${menu.children == null or menu.children.isEmpty()}"
-			th:data-url="${menu.menuUrl}" th:text="${menu.menuName}"> </a> Parent expandable
-			<a href="javascript:void(0);" class="menu-link"
+			th:data-url="${menu.menuUrl}" th:text="${menu.menuName}"> </a> Parent
+			expandable <a href="javascript:void(0);" class="menu-link"
 			th:if="${menu.children != null and !menu.children.isEmpty()}"> <span
 				th:text="${menu.menuName}"></span> <span class="arrow">▶</span>
 		</a> Children
@@ -85,6 +85,8 @@
 		</li>
 
 	</ul> -->
+
+
 
 	<ul class="sidebar-menu" id="menus">
 
@@ -111,5 +113,6 @@
 		</li>
 
 	</ul>
+
 
 </nav>
