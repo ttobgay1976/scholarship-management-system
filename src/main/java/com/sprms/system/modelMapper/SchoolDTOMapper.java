@@ -2,7 +2,6 @@ package com.sprms.system.modelMapper;
 
 import java.util.List;
 
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 import com.sprms.system.frmbeans.SchoolDTO;

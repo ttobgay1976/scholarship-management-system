@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 import com.sprms.system.frmbeans.CollegesDTO;
 import com.sprms.system.hbmbeans.Cities;
@@ -14,7 +15,7 @@ import com.sprms.system.hbmbeans.State;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Component
 public class CollegesDTOMapper {
 
 	// HBMBean → DTO

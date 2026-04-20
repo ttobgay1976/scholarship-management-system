@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!--This is use for the data table  -->
+<script
+	src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$('#applicationTable').DataTable({
+			pageLength : 10,
+			ordering : true,
+			searching : true
+		});
+
+	});
+</script>
+
+</head>
+<body>
+	<div class="container-fluid">
+		<section layout:fragment="content">
+
+			<div class="p-2 bg-body-secondary">Scholarship
+				Registration Application Approved Lists Page</div>
+
+			<div class="mt-3">
+				<table id="applicationTable"
+					class="display table table-bordered table-hover mt-3">
+					<thead class="table-dark">
+						<tr>
+							<th>Reg. No.</th>
+							<th>Name</th>
+							<th>citizenId</th>
+							<th>gender</th>
+							<th>Index No.</th>
+							<th>Email</th>
+							<th>Contact No.</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="schlst : ${schapplsts}">
+							<td th:text="${schlst.id}"></td>
+							<td
+								th:text="${#strings.trim(
+							    schlst.firstName + ' ' +
+							    (schlst.middleName != null ? schlst.middleName : '') + ' ' +
+							    schlst.lastName
+							)}"></td>
+							<td th:text="${schlst.citizenId}"></td>
+							<td th:text="${schlst.gender}"></td>
+							<td th:text="${schlst.indexNumber}"></td>
+							<td th:text="${schlst.emailAddress}"></td>
+							<td th:text="${schlst.contactNo}"></td>
+							<td><span class="badge bg-success">Approved</span></td>
+
+						</tr>
+					</tbody>
+				</table>
+				<!-- Pagination -->
+				<div class="pagination">
+					<ul style="list-style: none; display: flex; gap: 10px;">
+						<li th:if="${schapplsts.hasPrevious()}"><a
+							th:href="@{/service/scholarshipregistrationapplst(page=${schapplsts.number-1},size=${schapplsts.size})}">Previous</a>
+						</li>
+						<li th:each="i : ${#numbers.sequence(0, schapplsts.totalPages-1)}">
+							<a
+							th:href="@{/service/scholarshipregistrationapplst(page=${i},size=${schapplsts.size})}"
+							th:text="${i+1}"
+							th:classappend="${i == schapplsts.number} ? 'active' : ''"></a>
+						</li>
+						<li th:if="${schapplsts.hasNext()}"><a
+							th:href="@{/service/scholarshipregistrationapplst(page=${schapplsts.number+1},size=${schapplsts.size})}">Next</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+		</section>
+		<!-- JS Fragment -->
+		<th:block
+			th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+	</div>
+</body>
+</html>

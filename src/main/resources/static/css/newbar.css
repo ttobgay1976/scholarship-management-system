@@ -1,0 +1,104 @@
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: #C0C0C0;   /* dark sidebar */
+    height: 100%;
+}
+
+/* =========================
+   PARENT MENU
+========================= */
+.menu-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 7px 5px !important;
+    margin: 3px 2px !important;
+
+    background-color: #432DD7 !important;
+    color: #ffffff;
+    text-decoration: none;
+
+    border-radius: 2px;
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+/* Hover */
+.menu-link:hover {
+    background-color: #3a3a55;
+}
+
+/* Active parent */
+.menu-link.active-parent {
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: 500;
+}
+
+/* =========================
+   SUBMENU
+========================= */
+.submenu {
+    list-style: none;
+    display: none;
+    padding-left: 2px;
+}
+
+.submenu li {
+    margin: 3px 0;
+}
+
+.submenu.open {
+    display: block;
+}
+
+/* Submenu item */
+.submenu-link {
+    display: block;
+    padding: 5px 5px !important;
+    margin: 3px 1px !important;
+
+    background-color: #D4D4D4;
+    color: black !important;
+    text-decoration: none;
+
+    border-radius: 2px;
+    transition: 0.2s;
+}
+
+/* hover */
+.submenu-link:hover {
+    background-color: #E2E8F0;
+    color: #432DD7 !important;
+}
+
+/* active submenu */
+
+/* ACTIVE SUBMENU */
+.submenu-link.active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    font-weight: 400;
+}
+
+/* ACTIVE PARENT (KEEP OPEN + HIGHLIGHT) */
+.menu-link.active-parent {
+    background-color: #0b5ed7;
+    color: #fff !important;
+    font-weight: 400;
+}
+
+/* =========================
+   ARROW
+========================= */
+.arrow {
+    transition: transform 0.2s ease;
+}
+
+.arrow.rotated {
+    transform: rotate(90deg);
+}

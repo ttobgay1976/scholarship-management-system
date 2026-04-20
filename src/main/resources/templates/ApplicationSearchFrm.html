@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+</head>
+<body>
+	<section layout:fragment="content">
+		<div class="container-fluid p-2 bg-body-secondary">Searh Page</div>
+
+		<div class="mt-3 px-3">
+			<div class="hr-with-text my-3">
+				<span><i>Search Bar</i></span>
+			</div>
+			<!-- Success message -->
+
+			<div th:if="${message}" class="alert alert-success"
+				th:text="${message}"></div>
+
+			<form th:action="@{/service/getpplicationstatus}" method="get">
+				<div class="mt-3">
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Enter Citizen ID Number:</label>
+						<div class="col-sm-3">
+							<input type="text" name="cid" class="form-control" minlength="11"
+								maxlength="11" required />
+						</div>
+
+						<!-- 						CSRF Token
+						<input type="hidden" th:name="${_csrf.parameterName}"
+							th:value="${_csrf.token}" /> -->
+
+						<div class="col-sm-4">
+							<button type="submit" class="btn btn-primary">Get
+								Application Details</button>
+						</div>
+					</div>
+				</div>
+
+			</form>
+			<div
+				th:if="${applications != null and !#lists.isEmpty(applications)}">
+				<!-- your table -->
+
+				<div class="hr-with-text my-3">
+					<span><i>Application Detail</i></span>
+				</div>
+				<h5 class="mt-4">Searched Result</h5>
+
+				<table class="table table-bordered mt-2">
+					<thead class="table-secondary">
+						<tr>
+							<th>Application ID</th>
+							<th>Name</th>
+							<th>CID No.</th>
+							<th>Contract No.</th>
+							<th>email Address</th>
+							<th>Submitted Date</th>
+							<th>Remarks</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr th:each="app : ${applications}">
+							<td th:text="${app.id}"></td>
+							<td
+								th:text="${#strings.trim(app.firstName + ' ' +
+								(app.middleName != null ? app.middleName : '') + ' ' +
+								app.lastName )}"></td>
+							<td th:text="${app.citizenId}"></td>
+							<td th:text="${app.contactNo}"></td>
+							<td th:text="${app.emailAddress}"></td>
+							<td th:text="${app.createdAt}"></td>
+							<td th:text="${app.verifier_remarks}"></td>
+							<td><span th:text="${app.status}"
+								th:classappend="
+							            ${app.status.toString() == 'APPROVED'} ? 'badge bg-success' :
+							            (${app.status.toString() == 'REJECTED'} ? 'badge bg-danger' :
+							            (${app.status.toString() == 'VERIFIED'} ? 'badge bg-primary' :
+							            'badge bg-secondary'))
+							          ">
+							</span></td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+	</section>
+	<!-- JS Fragment -->
+	<th:block
+		th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+</body>
+</html>

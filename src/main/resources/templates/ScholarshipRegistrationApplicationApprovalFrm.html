@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!--This is use for the data table  -->
+<script
+	src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+</head>
+<body>
+	<div class="container-fluid">
+		<section layout:fragment="content">
+
+			<div class="p-2 bg-body-secondary">Scholarship Registration
+				Application Approval Page</div>
+			<div class="hr-with-text my-3">
+				<span><i>Applicant Personal Information</i></span>
+			</div>
+			<form id="scholarshipregistrationverificationfrm" th:action="@{/service/saveapplicationapproverremark}"
+				th:object="${approverActionDTO}" method="post" >
+				<input type="hidden" name="applicationId"
+					th:value="${schapplication.id}" />
+				<div class="mt-3">
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Registration ID :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.id}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Name: :</label>
+						<div class="col-sm-4">
+							<input type="text"
+								th:value="${#strings.trim(schapplication.firstName + ' ' +
+						(schapplication.middleName != null ? schapplication.middleName : '') + ' ' +
+						schapplication.lastName )}"
+								class="form-control-plaintext" readonly />
+
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Date of Birth :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.dateOfBirth}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Gender:</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.gender}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Citizen ID:</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.citizenId}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Father Name:</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.fatherName}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Mother Name :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.citizenId}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Permanent Address:</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.permanentAddress}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Guardain Address :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.guardianDetail}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Contact No :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.contactNo}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Email Address :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.emailAddress}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="hr-with-text my-3">
+						<span><i>Other Key Information</i></span>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Index Number :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.indexNumber}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Stream :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.streamName}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Country of Completion :</label>
+						<div class="col-sm-4">
+							<input type="text"
+								th:value="${schapplication.countryOfCompletion}"
+								class="form-control-plaintext" readonly />
+						</div>
+						<label for="scholarshipProgramName"
+							class="col-sm-2 col-form-label">Remarks :</label>
+						<div class="col-sm-4">
+							<input type="text" th:value="${schapplication.remarks}"
+								class="form-control-plaintext" readonly />
+						</div>
+					</div>
+
+					<div
+						th:if="${#strings.equalsIgnoreCase(schapplication.countryOfCompletion, 'Other')}">
+						<div class="hr-with-text my-3">
+							<span><i>Supporting Documents (cl-10 & 12 marks sheet and passed certificate)</i></span>
+						</div>
+						<table class="table table-bordered"
+							style="width: 75%; table-layout: fixed;">
+							<thead>
+								<tr>
+									<th style="width: 10%;">Sl No</th>
+									<th style="width: 60%;">File Name</th>
+									<th style="width: 30%;">Action</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<tr th:each="file, stat : ${files}">
+
+									<!-- Sequence Number -->
+									<td th:text="${stat.index + 1}"></td>
+
+									<!-- File Name -->
+									<td th:text="${file.fileName}"></td>
+
+									<!-- Actions -->
+									<td><a
+										th:href="@{/file/view/{id}/{name}(id=${file.scholarshipRegistrationId}, name=${file.fileName})}"
+										target="_blank" class="btn btn-info btn-sm"> View File </a> <!-- <a
+								th:href="@{'/files/download/' + ${file.id}}"
+								class="btn btn-success btn-sm"> Download </a> --></td>
+
+								</tr>
+							</tbody>
+
+						</table>
+					</div>
+					<div class="hr-with-text my-3">
+						<span><i>Action Section</i></span>
+					</div>
+					<div class="row mb-1">
+						<label for="verifierStatus"
+							class="col-sm-2 col-form-label"> Action Taken:</label>
+						<div class="col-sm-4">
+							<select th:field="*{approvalStatus}" class="form-select">
+								<option value="">-- Select Action --</option>
+								<option th:each="st : ${statuses}" th:value="${st}"
+									th:text="${st}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="row mb-1">
+						<label for="remarks" class="col-sm-2 col-form-label">
+							Remaks:</label>
+						<div class="col-sm-4">
+							<textarea th:field="*{approvalRemarks}" class="form-control" rows="4"
+								placeholder="Enter remarks"></textarea>
+						</div>
+					</div>
+					<!-- CSRF Token -->
+					<input type="hidden" th:name="${_csrf.parameterName}"
+						th:value="${_csrf.token}" />
+					<hr>
+					<div class="row mb-3">
+						<div class="col-sm-4 mx-auto">
+							<button type="submit" class="btn btn-primary">Save</button>
+							<button type="button" class="btn btn-secondary"
+								onclick="history.back()">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</section>
+		<!-- JS Fragment -->
+
+		<th:block
+			th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+	</div>
+</body>
+</html>
