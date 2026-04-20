@@ -1,36 +1,19 @@
 
 <nav th:fragment="sidebar" class="sidebar">
 
-	<h2>Menu</h2>
+	<h2
+		style="background: linear-gradient(90deg, #432DD7, #0d6efd); color: white; padding: 7px 15px; border-radius: 3px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 5px;">
+		SPRMS || Menus</h2>
 	<!-- sidebar.html -->
 
-	<!-- 	
-			<li>
-		<ul class="nav flex-column ms-3">
-			<hr style="border: 1px solid #007bff; margin: 3px 0;">
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/user/registrationfrm">User Registration</a></li>
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/user/userlists">List Users</a></li>
-			<hr style="border: 1px solid #007bff; margin: 3px 0;">
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/role/addrolefrm">User Role</a></li>
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/role/lstroles">List Roles</a></li>
-			<hr style="border: 1px solid #007bff; margin: 3px 0;">
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/others/menufrm">Add Menu</a></li>
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/others/rolemenumapfrm">Map Role & Menu</a></li>
-			<li class="nav-item"><a class="nav-link child-menu"
-				href="/user/userrolemapfrm">User Role Mapping</a></li>
-		</ul>
-	</li> -->
+	<ul class="nav flex-column ms-3">
 
-		<ul class="nav flex-column ms-3">
 		<li class="nav-item"><a class="nav-link child-menu"
-			href="/service/scholarshipregistrationapplst">Scholarship Reg. List</a></li>
-	
+			href="/service/trachapplicationstatus"> Application Tracking</a></li>
+
+		<li class="nav-item"><a class="nav-link child-menu"
+			href="/service/test"> Testing Mail </a></li>
+
 	</ul>
 
 
@@ -64,7 +47,7 @@
 
 	<!-- Today changes -->
 
-<!-- 	<ul class="sidebar-menu" id="menus">
+	<!-- 	<ul class="sidebar-menu" id="menus">
 		<li th:each="menu : ${menus}" class="menu-item">Parent <a
 			href="#" class="menu-link load-page"
 			th:if="${menu.children == null or menu.children.isEmpty()}"
