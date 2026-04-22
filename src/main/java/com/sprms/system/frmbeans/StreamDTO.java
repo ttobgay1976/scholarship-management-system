@@ -4,7 +4,6 @@ import jakarta.persistence.Id;
 
 public class StreamDTO {
 
-	@Id
 	private Long id;
 	private String streamName;
 	private String descriptions;

@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.sprms.system.core.servicesdao.SupportingFilesRepository;
+import com.sprms.system.core.repository.SupportingFilesRepository;
 import com.sprms.system.frmbeans.SupportingFilesDTO;
 import com.sprms.system.hbmbeans.SupportingFiles;
 import com.sprms.system.modelMapper.SupportingFilesDTOMapper;

@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.sprms.system.applicationEnums.ApplicationStatus;
-import com.sprms.system.core.servicesdao.ScholarshipRegistrationRepository;
+import com.sprms.system.core.repository.ScholarshipRegistrationRepository;
 import com.sprms.system.frmbeans.ApproverActionDTO;
 import com.sprms.system.frmbeans.ScholarshipRegistrationDTO;
 import com.sprms.system.frmbeans.VerifierActionDTO;
