@@ -1,11 +1,17 @@
 package com.sprms.system.frmbeans;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sprms.system.applicationEnums.ApplicationStatus;
 
 public class VerifierActionDTO {
 
+    @JsonProperty("applicationId")
     private Long applicationId;
+    
+    @JsonProperty("verifierStatus")
     private ApplicationStatus verifierStatus;
+    
+    @JsonProperty("verifierRemarks")
     private String verifierRemarks;
     
     

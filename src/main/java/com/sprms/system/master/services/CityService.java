@@ -39,4 +39,13 @@ public class CityService {
                 .map(c -> new CitiesDTO(c.getId(), c.getCityName()))
                 .collect(Collectors.toList());
     }
+
+    public List<CitiesDTO> getCitiesByCountryAndState(Long countryId, Long stateId) {
+
+        return _cityRepository.findByStateIdAndStateCountryId(stateId, countryId)
+                .stream()
+                .map(c -> new CitiesDTO(c.getId(), c.getCityName()))
+                .collect(Collectors.toList());
+    }
+
 }

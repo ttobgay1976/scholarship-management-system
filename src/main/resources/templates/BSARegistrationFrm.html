@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Registration - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Mockup (to match your system context) */
+        #sidebar {
+            min-width: var(--sidebar-width);
+            max-width: var(--sidebar-width);
+            background: #1e293b;
+            color: #fff;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+
+        #sidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #sidebar ul li {
+            padding: 10px 20px;
+            border-bottom: 1px solid #334155;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #sidebar ul li:hover, #sidebar ul li.active {
+            background: #334155;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        #sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            background: #fff;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background-color: #fff;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-custom h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        /* Form Styling */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(13, 110, 253, 0.1);
+            color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #334155;
+            margin: 0;
+        }
+
+        .form-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        .form-control, .form-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        }
+
+        .form-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
+
+        .btn-secondary-custom {
+            background-color: #fff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        .action-bar {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* Custom Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1055;
+        }
+
+        .custom-toast {
+            background: #fff;
+            border-left: 4px solid;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            min-width: 300px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease-out;
+        }
+
+        .custom-toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-success { border-color: #22c55e; }
+        .toast-success i { color: #22c55e; }
+        .toast-error { border-color: #ef4444; }
+        .toast-error i { color: #ef4444; }
+
+        .toast-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        /* Required Asterisk */
+        .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        /* Responsive adjustments for dashboard */
+        @media (max-width: 992px) {
+            #sidebar {
+                margin-left: calc(var(--sidebar-width) * -1);
+            }
+            #sidebar.active {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+<!-- Page Content -->
+    <div id="content">
+        <!-- Header Area -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-center text-dark mb-1">Bhutanese Student Association (BSA) Management</h2>
+            </div>
+        </div>
+
+        <div class="card card-custom">
+            <div class="card-header-custom">
+                <h3><i class="fas fa-edit me-2 text-primary"></i>Add New BSA</h3>
+                <!-- <span class="badge bg-light text-dark border" id="formModeBadge">New Entry</span> -->
+            </div>
+            
+            <div class="card-body-custom">
+                <form th:action="@{/bsa/register}" th:object="${bsafrmbean}" method="post" id="bsaForm" autocomplete="off">
+                    <input type="hidden" th:field="*{bsaId}" />
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <div class="section-header">
+                        <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                        <h5 class="section-title">Basic Information</h5>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="bsaCode" class="form-label required">BSA Code</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-hashtag text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="bsaCode" th:field="*{bsaCode}"
+                                       placeholder="BSA-Code" maxlength="50" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4">
+                            <label for="bsaName" class="form-label required">BSA Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-building text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0 ps-0" id="bsaName" th:field="*{bsaName}"
+                                       placeholder="BSA Name" maxlength="255" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 col-lg-4">
+                            <label for="status" class="form-label">Status</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-toggle-on text-muted"></i></span>
+                                <select class="form-select border-start-0 ps-0" id="status" th:field="*{status}">
+                                    <option value="" selected disabled>-- Select Status --</option>
+                                    <option value="ACTIVE">Active</option>
+                                    <option value="INACTIVE">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="section-header mt-5">
+                        <div class="section-icon"><i class="fas fa-map-marked-alt"></i></div>
+                        <h5 class="section-title">Location</h5>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <label for="countrySelect" class="form-label required">Country</label>
+                            <select class="form-select" id="countrySelect" th:field="*{countryId}" required>
+                                <option value="" selected disabled>-- Select Country --</option>
+                                <!-- Thymeleaf Loop -->
+                                <option th:each="ctry : ${lstcountry}" th:value="${ctry.id}"
+                                        th:text="${ctry.countryName}"></option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="stateSelect" class="form-label required">State/Province</label>
+                            <select class="form-select" id="stateSelect" th:field="*{stateId}" required disabled>
+                                <option value="" selected disabled>-- Select State --</option>
+                            </select>
+                            <div class="form-text" id="stateLoader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="citySelect" class="form-label required">City</label>
+                            <select class="form-select" id="citySelect" th:field="*{cityId}" required disabled>
+                                <option value="" selected disabled>-- Select City --</option>
+                            </select>
+                            <div class="form-text" id="cityLoader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="instituteSelect" class="form-label">Institute (Optional)</label>
+                            <select class="form-select" id="instituteSelect" th:field="*{instituteId}">
+                                <option value="" selected>-- Select Institute --</option>
+                                <option th:if="${lstcollege}" th:each="college : ${lstcollege}" th:value="${college.id}"
+                                        th:text="${college.collegeName}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" th:field="*{description}"
+                                      placeholder="Enter a brief description or objectives of the BSA..." rows="3" maxlength="1000"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-bar">
+                        <a href="/bsa/lstbsas" class="btn btn-secondary-custom">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                            <i class="fas fa-save"></i>
+                            <span th:if="${bsafrmbean.bsaId == null}">Register BSA</span>
+                            <span th:if="${bsafrmbean.bsaId != null}">Update Changes</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        function showToast(message, type) {
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            const toastHtml = `
+                <div class="custom-toast toast-${type}">
+                    <div class="toast-icon"><i class="fas ${icon}"></i></div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            const $toast = $(toastHtml);
+            $('#toastContainer').append($toast);
+            
+            setTimeout(() => $toast.addClass('show'), 10);
+            setTimeout(() => {
+                $toast.removeClass('show');
+                setTimeout(() => $toast.remove(), 300);
+            }, 3000);
+        }
+        let initialSavedState = $('#stateSelect').val();
+        let initialSavedCity = $('#citySelect').val();
+        
+        const isEdit = window.location.href.indexOf('edit') > -1; 
+        if(isEdit && $('#bsaCode').val() === '') {
+            $('#bsaCode').val('BSA-BH-001');
+            $('#bsaName').val('Royal Thimphu College Student Association');
+            $('#description').val('Representing students of RTC in Thimphu.');
+            $('#status').val('ACTIVE');
+            $('#countrySelect').val('1');
+            
+            initialSavedState = '101'; 
+            initialSavedCity = '202';
+        }
+
+        $('#countrySelect').change(function() {
+            const countryId = $(this).val();
+            const $stateSelect = $('#stateSelect');
+            const $citySelect = $('#citySelect');
+            const $loader = $('#stateLoader');
+
+            $stateSelect.prop('disabled', true).html('<option value="" selected disabled>-- Select State --</option>');
+            $citySelect.prop('disabled', true).html('<option value="" selected disabled>-- Select City --</option>');
+
+            if (countryId) {
+                $loader.show();
+                
+                $.ajax({
+                    url: '/api/states?countryId=' + countryId,
+                    type: 'GET',
+                    success: function(data) {
+                        $loader.hide();
+                        let html = '<option value="" selected disabled>-- Select State --</option>';
+                        if (data.length > 0) {
+                            data.forEach(function(state) {
+                                html += '<option value="' + state.id + '">' + state.stateName + '</option>';
+                            });
+                        }
+                        $stateSelect.html(html).prop('disabled', false);
+                        if (initialSavedState && $stateSelect.find("option[value='" + initialSavedState + "']").length) {
+                            $stateSelect.val(initialSavedState);
+                            $stateSelect.trigger('change');
+                        }
+                    },
+                    error: function() {
+                        $loader.hide();
+                        showToast('Error loading states', 'error');
+                    }
+                });
+            }
+        });
+
+        $('#stateSelect').change(function() {
+            const stateId = $(this).val();
+            const countryId = $('#countrySelect').val();
+            const $citySelect = $('#citySelect');
+            const $loader = $('#cityLoader');
+
+            $citySelect.prop('disabled', true).html('<option value="" selected disabled>-- Select City --</option>');
+
+            if (stateId && countryId) {
+                $loader.show();
+
+                $.ajax({
+                    url: '/api/cities-by-country-state?countryId=' + countryId + '&stateId=' + stateId,
+                    type: 'GET',
+                    success: function(data) {
+                        $loader.hide();
+                        let html = '<option value="" selected disabled>-- Select City --</option>';
+                        if (data.length > 0) {
+                            data.forEach(function(city) {
+                                html += '<option value="' + city.id + '">' + city.cityName + '</option>';
+                            });
+                        }
+                        $citySelect.html(html).prop('disabled', false);
+                        if (initialSavedCity && $citySelect.find("option[value='" + initialSavedCity + "']").length) {
+                            $citySelect.val(initialSavedCity);
+                        }
+                    },
+                    error: function() {
+                        $loader.hide();
+                        showToast('Error loading cities', 'error');
+                    }
+                });
+            }
+        });
+
+        const initialCountry = $('#countrySelect').val();
+        if (initialCountry) {
+            $('#countrySelect').trigger('change'); 
+        }
+
+        $('#bsaForm').submit(function(e) {
+            let isValid = true;
+
+            if ($('#bsaCode').val().trim() === '') {
+                showToast('Please enter BSA Code', 'error');
+                $('#bsaCode').addClass('is-invalid');
+                isValid = false;
+            } else {
+                $('#bsaCode').removeClass('is-invalid');
+            }
+
+            if ($('#bsaName').val().trim() === '') {
+                showToast('Please enter BSA Name', 'error');
+                $('#bsaName').addClass('is-invalid');
+                isValid = false;
+            } else {
+                $('#bsaName').removeClass('is-invalid');
+            }
+
+            if (!$('#countrySelect').val()) {
+                showToast('Please select Country', 'error');
+                isValid = false;
+            }
+
+            if (!$('#stateSelect').val()) {
+                showToast('Please select State', 'error');
+                isValid = false;
+            }
+
+            if (!$('#citySelect').val()) {
+                showToast('Please select City', 'error');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
+</body>
+</html>

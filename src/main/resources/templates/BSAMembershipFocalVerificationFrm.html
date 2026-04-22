@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Membership Focal Verification - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --sidebar-width: 260px;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--info-color), #0aa2c0);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.approved {
+            background: linear-gradient(135deg, #d1e7dd, #a9d7c7);
+            color: #0f5132;
+        }
+
+        .stat-card.verified {
+            background: linear-gradient(135deg, #cff4fc, #b6effb);
+            color: #055160;
+        }
+
+        .stat-card.rejected {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #842029;
+        }
+
+        .stat-card.pending {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Table Styles */
+        .table-custom {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-custom thead {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        .table-custom tbody tr {
+            transition: all 0.3s;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: rgba(13, 202, 240, 0.05);
+        }
+
+        /* Button Styles */
+        .btn-verify {
+            background: linear-gradient(135deg, var(--success-color), #157347);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-verify:hover {
+            background: linear-gradient(135deg, #157347, #146c43);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, var(--danger-color), #bb2d3b);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #bb2d3b, #b02a37);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-1px);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-verified {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+
+        /* Approval Info */
+        .approval-info {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .approval-info small {
+            display: block;
+            color: var(--text-muted);
+        }
+
+        /* Modal Styles */
+        .modal-header-custom {
+            background: linear-gradient(135deg, var(--info-color), #0aa2c0);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-content-custom {
+            border: none;
+            border-radius: 12px;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Pagination */
+        .pagination-custom {
+            justify-content: center;
+        }
+
+        .page-link-custom {
+            border: none;
+            color: var(--info-color);
+            margin: 0 2px;
+            border-radius: 6px;
+        }
+
+        .page-link-custom:hover {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        .page-item-custom.active .page-link-custom {
+            background-color: var(--info-color);
+            color: white;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -22px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--info-color);
+            border: 2px solid white;
+        }
+
+        .timeline-content {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="loadingSpinner">
+        <div class="spinner-border text-info" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-shield me-2"></i>
+                        BSA Membership Focal Verification
+                    </h2>
+                    <p class="text-muted mb-0">Verify VP/President approved membership requests</p>
+                </div>
+                <div>
+                    <button class="btn btn-info" onclick="refreshData()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+            <!-- Approved Requests Table -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        President/BSA Vice President has Approved Requests for Verification
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Student Name</th>
+                                    <th>CID</th>
+                                    <th>BSA</th>
+                                    <th>Funding Type</th>
+                                    <th>VP Approval</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvedRequestsTable">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                        <div id="noApprovedRequests" class="text-center text-muted py-4" style="display: none;">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <p>No requests awaiting verification.</p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Page navigation" class="mt-3">
+                        <ul class="pagination pagination-custom" id="pagination">
+                            <!-- Pagination will be populated here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div class="modal fade" id="verificationModal" tabindex="-1" aria-labelledby="verificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="verificationModalLabel">
+                        <i class="fas fa-user-shield me-2"></i>
+                        Verify Membership Request
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="verificationForm">
+                        <input type="hidden" id="membershipId" name="applicationId">
+                        
+                        <!-- Request Details -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Student Name</label>
+                                <input type="text" class="form-control" id="modalStudentName" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">CID Number</label>
+                                <input type="text" class="form-control" id="modalStudentCid" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">BSA</label>
+                                <input type="text" class="form-control" id="modalBsaName" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Funding Type</label>
+                                <input type="text" class="form-control" id="modalFundingType" readonly>
+                            </div>
+                        </div>
+
+                        <!-- VP Approval Info -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">VP/President Approval Details</label>
+                                <div class="approval-info">
+                                    <strong>Approved By:</strong> <span id="modalVpApprovedBy"></span><br>
+                                    <strong>Approval Date:</strong> <span id="modalVpApprovalDate"></span><br>
+                                    <strong>VP Remarks:</strong> <span id="modalVpRemarks"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Timeline -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Request Timeline</label>
+                                <div class="timeline" id="modalTimeline">
+                                    <!-- Timeline will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Decision -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Verification Decision <span class="text-danger">*</span></label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="verifierStatus" id="verifyRadio" 
+                                           value="APPROVED" required>
+                                    <label class="btn btn-outline-success" for="verifyRadio">
+                                        <i class="fas fa-check me-2"></i>Confirm Verification
+                                    </label>
+
+                                    <input type="radio" class="btn-check" name="verifierStatus" id="rejectRadio" 
+                                           value="REJECTED" required>
+                                    <label class="btn btn-outline-danger" for="rejectRadio">
+                                        <i class="fas fa-times me-2"></i>Reject Verification
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Remarks -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="form-label">Verification Remarks <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="verificationRemarks" name="verifierRemarks" 
+                                          rows="4" placeholder="Enter your verification remarks..." required></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="submitVerification()">
+                        <i class="fas fa-shield-alt me-2"></i>Submit Verification
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Global variables
+        let currentPage = 0;
+        let pageSize = 10;
+        let totalPages = 0;
+        let verificationModal;
+
+        // Initialize page
+        $(document).ready(function() {
+            verificationModal = new bootstrap.Modal(document.getElementById('verificationModal'));
+            loadStatistics();
+            loadApprovedRequests();
+        });
+
+        // Load statistics
+        function loadStatistics() {
+            $.ajax({
+                url: '/api/bsa-membership/statistics',
+                method: 'GET',
+                success: function(stats) {
+                    $('#approvedCount').text(stats.approved || 0);
+                    $('#verifiedCount').text(stats.verified || 0);
+                    $('#rejectedCount').text(stats.rejected || 0);
+                    $('#pendingCount').text(stats.pending || 0);
+                },
+                error: function() {
+                    console.error('Error loading statistics');
+                }
+            });
+        }
+
+        // Load approved requests
+        function loadApprovedRequests(page = 0) {
+            showLoading();
+            currentPage = page;
+            
+            $.ajax({
+                url: '/api/bsa-membership/approved-for-verification',
+                method: 'GET',
+                data: {
+                    page: page,
+                    size: pageSize
+                },
+                success: function(response) {
+                    renderApprovedRequests(response.content);
+                    renderPagination(response);
+                    hideLoading();
+                },
+                error: function() {
+                    showAlert('Error loading approved requests. Please try again.', 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Render approved requests
+        function renderApprovedRequests(requests) {
+            const tableBody = $('#approvedRequestsTable');
+            const noDataMessage = $('#noApprovedRequests');
+            
+            tableBody.empty();
+            
+            if (requests.length === 0) {
+                noDataMessage.show();
+                return;
+            }
+            
+            noDataMessage.hide();
+            
+            requests.forEach(function(request) {
+                const statusClass = getStatusClass(request.membershipStatus);
+                const row = `
+                    <tr>
+                        <td>${request.membershipId}</td>
+                        <td>${request.studentName}</td>
+                        <td>${request.studentCid}</td>
+                        <td>${request.bsaName}</td>
+                        <td>${request.fundingType}</td>
+                        <td>
+                            <small class="text-muted">
+                                ${request.vpApprovedBy ? request.vpApprovedBy : 'N/A'}<br>
+                                ${request.vpApprovalDate ? formatDate(request.vpApprovalDate) : 'N/A'}
+                            </small>
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${request.membershipStatus}</span></td>
+                        <td>
+                            <a href="/bsa-membership/focal-view?id=${request.membershipId}" class="btn btn-sm btn-view me-1">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="/bsa-membership/focal-verify?id=${request.membershipId}" class="btn btn-sm btn-verify">
+                                <i class="fas fa-shield-alt"></i> Verify
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+
+        // Render pagination
+        function renderPagination(response) {
+            const pagination = $('#pagination');
+            pagination.empty();
+            
+            totalPages = response.totalPages;
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevDisabled = response.first ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item page-item-custom ${prevDisabled}">
+                    <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${currentPage - 1}); return false;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `);
+            
+            // Page numbers
+            for (let i = 0; i < totalPages; i++) {
+                const active = i === currentPage ? 'active' : '';
+                pagination.append(`
+                    <li class="page-item page-item-custom ${active}">
+                        <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${i}); return false;">
+                            ${i + 1}
+                        </a>
+                    </li>
+                `);
+            }
+            
+            // Next button
+            const nextDisabled = response.last ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item page-item-custom ${nextDisabled}">
+                    <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${currentPage + 1}); return false;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `);
+        }
+
+        // View details
+        function viewDetails(membershipId) {
+            // This would open a detailed view modal or navigate to details page
+            console.log('View details for:', membershipId);
+        }
+
+        // Open verification modal
+        function openVerificationModal(membershipId) {
+            showLoading();
+            
+            $.ajax({
+                url: `/api/bsa-membership/${membershipId}`,
+                method: 'GET',
+                success: function(membership) {
+                    // Populate modal fields
+                    $('#membershipId').val(membership.membershipId);
+                    $('#modalStudentName').val(membership.studentName);
+                    $('#modalStudentCid').val(membership.studentCid);
+                    $('#modalBsaName').val(membership.bsaName);
+                    $('#modalFundingType').val(membership.fundingType);
+                    $('#modalVpApprovedBy').val(membership.vpApprovedBy || 'N/A');
+                    $('#modalVpApprovalDate').val(membership.vpApprovalDate ? formatDate(membership.vpApprovalDate) : 'N/A');
+                    $('#modalVpRemarks').val(membership.vpRemarks || 'No remarks provided');
+                    
+                    // Populate timeline
+                    populateTimeline(membership);
+                    
+                    // Reset form
+                    $('#verificationForm')[0].reset();
+                    $('#membershipId').val(membership.membershipId);
+                    
+                    // Show modal
+                    verificationModal.show();
+                    hideLoading();
+                },
+                error: function() {
+                    showAlert('Error loading membership details. Please try again.', 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Populate timeline
+        function populateTimeline(membership) {
+            const timeline = $('#modalTimeline');
+            timeline.empty();
+            
+            // Request submitted
+            if (membership.membershipRequestDate) {
+                timeline.append(`
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <strong>Request Submitted</strong><br>
+                            <small>${formatDate(membership.membershipRequestDate)}</small>
+                        </div>
+                    </div>
+                `);
+            }
+            
+            // VP Approval
+            if (membership.vpApprovalDate) {
+                timeline.append(`
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <strong>VP/President Approved</strong><br>
+                            <small>By: ${membership.vpApprovedBy || 'N/A'}</small><br>
+                            <small>${formatDate(membership.vpApprovalDate)}</small><br>
+                            ${membership.vpRemarks ? `<small>Remarks: ${membership.vpRemarks}</small>` : ''}
+                        </div>
+                    </div>
+                `);
+            }
+        }
+
+        // Submit verification
+        function submitVerification() {
+            const formData = {
+                applicationId: $('#membershipId').val(),
+                verifierStatus: $('input[name="verifierStatus"]:checked').val(),
+                verifierRemarks: $('#verificationRemarks').val()
+            };
+            
+            if (!formData.verifierStatus) {
+                showAlert('Please select confirm verification or reject verification', 'warning');
+                return;
+            }
+            
+            if (!formData.verifierRemarks) {
+                showAlert('Please enter verification remarks', 'warning');
+                return;
+            }
+            
+            showLoading();
+            
+            $.ajax({
+                url: '/api/bsa-membership/focal-verification',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    showAlert(response.message, 'success');
+                    verificationModal.hide();
+                    loadStatistics();
+                    loadApprovedRequests(currentPage);
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : 'Error submitting verification';
+                    showAlert(errorMessage, 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadStatistics();
+            loadApprovedRequests(currentPage);
+        }
+
+        // Get status class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'PENDING': return 'status-pending';
+                case 'APPROVED': return 'status-approved';
+                case 'REJECTED': return 'status-rejected';
+                case 'VERIFIED': return 'status-verified';
+                default: return 'status-pending';
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            $('#loadingSpinner').show();
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            $('#loadingSpinner').hide();
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>

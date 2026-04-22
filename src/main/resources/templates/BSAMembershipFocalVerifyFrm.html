@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify BSA Membership Request</title>
+    
+    <!-- CSRF Meta Tags -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-hover: #3a53d0;
+            --primary-light: #eef2ff;
+            --secondary-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+            --success-bg: #d1fae5;
+            --success-text: #065f46;
+            --danger-color: #ef4444;
+            --danger-bg: #fee2e2;
+            --danger-text: #991b1b;
+            --warning-color: #f59e0b;
+            --warning-bg: #fef3c7;
+            --warning-text: #92400e;
+            --info-color: #0ea5e9;
+            --info-bg: #e0f2fe;
+            --info-text: #075985;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-xl: 16px;
+            --radius-md: 10px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .btn-back {
+            background-color: white;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+        }
+
+        .btn-back:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            text-decoration: none;
+        }
+
+        .detail-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .verification-section {
+            background: linear-gradient(135deg, var(--primary-light), #fff);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .card-header {
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header-icon {
+            color: var(--primary-color);
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            display: inline-block;
+        }
+
+        .status-approved { background-color: var(--success-bg); color: var(--success-text); }
+        .status-pending { background-color: var(--warning-bg); color: var(--warning-text); }
+        .status-rejected { background-color: var(--danger-bg); color: var(--danger-text); }
+        .status-verified { background-color: var(--info-bg); color: var(--info-text); }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-action {
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-verify {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-verify:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-reject {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-cancel {
+            background-color: white;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-cancel:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .loading-spinner {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .custom-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading-text {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+        .alert-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 25px;
+            padding: 16px 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="custom-spinner"></div>
+        <div class="loading-text">Processing...</div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fas fa-search me-3" style="color: var(--primary-color);"></i>Verify Request</h2>
+                <p>Review and verify BSA membership request</p>
+            </div>
+            <div>
+                <a href="/bsa-membership/focal-verification" class="btn-back">
+                    <i class="fas fa-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Request Details Card -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h5><i class="fas fa-file-alt card-header-icon"></i> Request Information</h5>
+                <span class="status-badge" id="statusBadge">Loading...</span>
+            </div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Request ID</span>
+                        <span class="detail-value" id="requestId">#Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Request Date</span>
+                        <span class="detail-value" id="requestDate">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">BSA</span>
+                        <span class="detail-value" id="bsaName">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Funding Type</span>
+                        <span class="detail-value" id="fundingType">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">VP Approval Date</span>
+                        <span class="detail-value" id="vpApprovalDate">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Details Card -->
+        <div class="detail-card">
+            <div class="card-header">
+                <h5><i class="fas fa-user card-header-icon"></i> Student Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Student Name</span>
+                        <span class="detail-value" id="studentName">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">CID Number</span>
+                        <span class="detail-value" id="studentCid">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email Address</span>
+                        <span class="detail-value" id="studentEmail">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Contact Number</span>
+                        <span class="detail-value" id="contactNumber">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Program</span>
+                        <span class="detail-value" id="program">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">College</span>
+                        <span class="detail-value" id="collegeName">Loading...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Address</span>
+                        <span class="detail-value" id="address">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Form Card -->
+        <div class="detail-card verification-section" id="verificationCard">
+            <div class="card-header">
+                <h5><i class="fas fa-clipboard-check card-header-icon"></i> Verification Decision</h5>
+            </div>
+            <div class="card-body">
+                <form id="verificationForm">
+                    <input type="hidden" id="membershipId" name="membershipId">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="decision" class="form-label">Verification Decision <span class="text-danger">*</span></label>
+                            <select class="form-select" id="decision" name="decision" required>
+                                <option value="" selected disabled>-- Select Decision --</option>
+                                <option value="VERIFIED">Verify</option>
+                                <option value="REJECTED">Reject</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="verificationDate" class="form-label">Verification Date</label>
+                            <input type="date" class="form-control" id="verificationDate" name="verificationDate" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <label for="remarks" class="form-label">Verification Remarks <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="4" 
+                                      placeholder="Enter verification justification..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn-action btn-cancel" onclick="goBack()">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn-action btn-verify" id="submitBtn">
+                            <i class="fas fa-check me-2"></i>Submit Verification
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // Get membership ID from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const membershipId = urlParams.get('id');
+            
+            if (!membershipId) {
+                showError('Request ID not provided');
+                return;
+            }
+            
+            // Set membership ID in form
+            $('#membershipId').val(membershipId);
+            
+            // Set today's date as verification date
+            const today = new Date().toISOString().split('T')[0];
+            $('#verificationDate').val(today);
+            
+            // Load membership details
+            loadMembershipDetails(membershipId);
+            
+            // Handle form submission
+            $('#verificationForm').on('submit', function(e) {
+                e.preventDefault();
+                submitVerification();
+            });
+        });
+
+        function loadMembershipDetails(membershipId) {
+            showLoading();
+            
+            $.ajax({
+                url: `/api/bsa-membership/${membershipId}`,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        populateDetails(response.membership);
+                    } else {
+                        showError('Failed to load membership details');
+                    }
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error loading membership details';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    showError(errorMessage);
+                    hideLoading();
+                }
+            });
+        }
+
+        function populateDetails(membership) {
+            // Request Information
+            $('#requestId').text('#' + membership.membershipId);
+            $('#requestDate').text(formatDate(membership.membershipRequestDate));
+            $('#bsaName').text(membership.bsaName || 'N/A');
+            $('#fundingType').text(membership.fundingType || 'N/A');
+            $('#vpApprovalDate').text(formatDate(membership.vpApprovalDate) || 'Not yet approved');
+            
+            // Status
+            $('#statusBadge').text(membership.membershipStatus || 'Unknown');
+            $('#statusBadge').removeClass().addClass('status-badge status-' + (membership.membershipStatus || '').toLowerCase());
+            
+            // Student Information
+            $('#studentName').text(membership.studentName || 'N/A');
+            $('#studentCid').text(membership.studentCid || 'N/A');
+            $('#studentEmail').text(membership.studentEmail || 'N/A');
+            $('#contactNumber').text(membership.contactNumber || 'N/A');
+            $('#program').text(membership.program || 'N/A');
+            $('#collegeName').text(membership.collegeName || 'N/A');
+            $('#address').text(membership.address || 'N/A');
+            
+            // Hide verification card if already processed
+            if (membership.membershipStatus === 'VERIFIED' || membership.membershipStatus === 'REJECTED') {
+                $('#verificationCard').hide();
+                showInfo('This request has already been processed');
+            }
+        }
+
+        function submitVerification() {
+            const decision = $('#decision').val();
+            const remarks = $('#remarks').val().trim();
+            const membershipId = $('#membershipId').val();
+            const verificationDate = $('#verificationDate').val();
+            
+            if (!decision) {
+                showError('Please select a verification decision');
+                return;
+            }
+            
+            if (!remarks) {
+                showError('Please enter verification remarks');
+                return;
+            }
+            
+            const verificationData = {
+                applicationId: membershipId,
+                verifierStatus: decision,
+                verifierRemarks: remarks,
+                verificationDate: verificationDate
+            };
+            
+            showLoading();
+            
+            $.ajax({
+                url: '/api/bsa-membership/focal-verification',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(verificationData),
+                beforeSend: function(xhr) {
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    if (header && token) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showSuccess(`Request ${decision.toLowerCase()}d successfully`);
+                        setTimeout(() => {
+                            window.location.href = '/bsa-membership/focal-verification';
+                        }, 2000);
+                    } else {
+                        showError(response.error || 'Failed to process verification');
+                    }
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error processing verification';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    }
+                    showError(errorMessage);
+                    hideLoading();
+                }
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            const date = new Date(dateString);
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function goBack() {
+            window.location.href = '/bsa-membership/focal-verification';
+        }
+
+        function showLoading() {
+            $('#loadingSpinner').fadeIn(200).css('display', 'flex');
+        }
+
+        function hideLoading() {
+            $('#loadingSpinner').fadeOut(200);
+        }
+
+        function showError(message) {
+            const alertHtml = `
+                <div class="alert alert-danger alert-dismissible fade show alert-custom" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+
+        function showSuccess(message) {
+            const alertHtml = `
+                <div class="alert alert-success alert-dismissible fade show alert-custom" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+
+        function showInfo(message) {
+            const alertHtml = `
+                <div class="alert alert-info alert-dismissible fade show alert-custom" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>
