@@ -28,7 +28,8 @@ public class SecurityConfig {
 //         .csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/", "/user/openregistrationfrm", "/user/saveuser", "/css/**", "/others",
-								"/images/**", "/js/**", "/api/**")
+								"/images/**", "/js/**", "/api/**","/bsa/**","/bsa-request/**",
+								"/bsa-membership/**", "/students/**")
 						.permitAll()
 						.anyRequest().authenticated())
 				.formLogin(form -> form.loginPage("/login") // custom login page

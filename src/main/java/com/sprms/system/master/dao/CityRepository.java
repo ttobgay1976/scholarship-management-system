@@ -13,4 +13,5 @@ public interface CityRepository extends JpaRepository<Cities, Long> {
     
     List<Cities> findByStateId(Long stateId);
 
+    List<Cities> findByStateIdAndStateCountryId(Long stateId, Long countryId);
 }

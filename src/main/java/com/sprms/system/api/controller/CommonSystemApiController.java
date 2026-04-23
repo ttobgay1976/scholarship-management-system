@@ -120,6 +120,14 @@ public class CommonSystemApiController {
 		return _cityService.getCitiesByState(stateId);
 	}
 
+	@GetMapping("/cities-by-country-state")
+	public List<CitiesDTO> getCitiesByCountryAndState(@RequestParam Long countryId, @RequestParam Long stateId) {
+
+		logger.info("@@@Calling getCitiesByCountryAndState - countryId: {}, stateId: {}", countryId, stateId);
+
+		return _cityService.getCitiesByState(stateId);
+	}
+
 	// call the gewog by taking the dzongkhagid
 	@GetMapping("/gewogs")
 	public List<GewogM> getGewogs(@RequestParam Long dzongkhagId) {

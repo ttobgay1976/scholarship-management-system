@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Membership VP Approval - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #4361ee; /* Modern vibrant blue */
+            --primary-hover: #3a53d0;
+            --primary-light: #eef2ff;
+            --secondary-bg: #f8fafc; /* Very light cool gray */
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            
+            --success-color: #10b981;
+            --success-bg: #d1fae5;
+            --success-text: #065f46;
+
+            --danger-color: #ef4444;
+            --danger-bg: #fee2e2;
+            --danger-text: #991b1b;
+
+            --warning-color: #f59e0b;
+            --warning-bg: #fef3c7;
+            --warning-text: #92400e;
+
+            --info-color: #0ea5e9;
+            --info-bg: #e0f2fe;
+            --info-text: #075985;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius-xl: 16px;
+            --radius-md: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Main Content Container - Centered & Spacious */
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Section */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .btn-refresh {
+            background-color: white;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-refresh:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .stat-card.pending::before { background-color: var(--warning-color); }
+        .stat-card.approved::before { background-color: var(--success-color); }
+        .stat-card.rejected::before { background-color: var(--danger-color); }
+        .stat-card.verified::before { background-color: var(--info-color); }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .stat-card.pending .stat-icon { background-color: var(--warning-bg); color: var(--warning-color); }
+        .stat-card.approved .stat-icon { background-color: var(--success-bg); color: var(--success-color); }
+        .stat-card.rejected .stat-icon { background-color: var(--danger-bg); color: var(--danger-color); }
+        .stat-card.verified .stat-icon { background-color: var(--info-bg); color: var(--info-color); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Table Card */
+        .table-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header-icon {
+            color: var(--primary-color);
+        }
+
+        /* Floating Table Design */
+        .table-responsive {
+            padding: 0; /* Reset padding */
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 12px; /* Creates the gap between rows */
+            margin-bottom: 0;
+        }
+
+        .table-custom thead th {
+            border: none;
+            background-color: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 10px 24px;
+            white-space: nowrap;
+        }
+
+        .table-custom tbody tr {
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #fcfcfc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transform: scale(1.005);
+            z-index: 1;
+            position: relative;
+        }
+
+        .table-custom td {
+            padding: 18px 24px;
+            vertical-align: middle;
+            border-top: none;
+            border-bottom: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+        
+        /* Rounded corners for first and last cell */
+        .table-custom tbody tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        .table-custom tbody tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        /* Buttons */
+        .btn-action {
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-right: 6px;
+        }
+
+        .btn-view {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        .btn-view:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+        .btn-approve {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+        }
+        .btn-approve:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.25);
+        }
+
+        .btn-reject-modal {
+            background-color: var(--danger-bg);
+            color: var(--danger-text);
+            border: none;
+        }
+        .btn-reject-modal:hover {
+            background-color: #fecaca;
+        }
+        
+        .btn-approve-modal {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: none;
+        }
+        .btn-approve-modal:hover {
+            background-color: #a7f3d0;
+        }
+        
+        .btn-check:checked + .btn-approve-modal, 
+        .btn-check:checked + .btn-reject-modal {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            opacity: 0.9;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.025em;
+            display: inline-block;
+        }
+
+        .status-pending { background-color: var(--warning-bg); color: var(--warning-text); }
+        .status-approved { background-color: var(--success-bg); color: var(--success-text); }
+        .status-rejected { background-color: var(--danger-bg); color: var(--danger-text); }
+        .status-verified { background-color: var(--info-bg); color: var(--info-text); }
+
+        /* Pagination */
+        .pagination-custom {
+            padding: 20px 30px;
+            margin-bottom: 0;
+        }
+        
+        .page-link-custom {
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+
+        .page-link-custom:hover {
+            background-color: var(--secondary-bg);
+            color: var(--primary-color);
+        }
+
+        .page-item-custom.active .page-link-custom {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Modal Redesign */
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header-custom {
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 24px 30px;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            background-color: #fcfcfc;
+        }
+
+        .form-control:focus {
+            background-color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        }
+
+        .form-control:read-only {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 20px 30px;
+            background-color: #f8fafc;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .spinner-content {
+            position: relative;
+        }
+
+        .custom-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading-text {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+
+        /* Alerts */
+        .alert-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 25px;
+            padding: 16px 20px;
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="loadingSpinner">
+        <div class="spinner-content">
+            <div class="custom-spinner"></div>
+            <div class="loading-text">Processing...</div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title">
+                <h2><i class="fas fa-user-check me-3" style="color: var(--primary-color);"></i>Membership Approval</h2>
+                <p>Review and manage pending BSA membership requests</p>
+            </div>
+            <div>
+                <button class="btn btn-refresh" onclick="refreshData()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-card">
+            <div class="card-header">
+                <h5><i class="fas fa-list-ul card-header-icon"></i> Pending Requests</h5>
+                <!-- Could add filters here in future -->
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover table-custom">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Student Name</th>
+                            <th>CID</th>
+                            <th>BSA</th>
+                            <th>Funding Type</th>
+                            <th>Request Date</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingRequestsTable">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+                
+                <div id="noPendingRequests" class="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>No pending membership requests found.</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-custom" id="pagination">
+                    <!-- Pagination will be populated here -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title" id="approvalModalLabel">
+                        <i class="fas fa-edit me-2" style="color: var(--primary-color);"></i>
+                        Review Request
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="approvalForm">
+                        <input type="hidden" id="membershipId" name="applicationId">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Student Name</label>
+                                <input type="text" class="form-control" id="modalStudentName" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CID Number</label>
+                                <input type="text" class="form-control" id="modalStudentCid" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">BSA</label>
+                                <input type="text" class="form-control" id="modalBsaName" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Funding Type</label>
+                                <input type="text" class="form-control" id="modalFundingType" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Decision Required</label>
+                            <div class="d-flex gap-3">
+                                <input type="radio" class="btn-check" name="approvalStatus" id="approveRadio" 
+                                       value="APPROVED" required>
+                                <label class="btn btn-approve-modal flex-grow-1 py-2" for="approveRadio">
+                                    <i class="fas fa-check me-2"></i>Approve
+                                </label>
+
+                                <input type="radio" class="btn-check" name="approvalStatus" id="rejectRadio" 
+                                       value="REJECTED" required>
+                                <label class="btn btn-reject-modal flex-grow-1 py-2" for="rejectRadio">
+                                    <i class="fas fa-times me-2"></i>Reject
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">Remarks</label>
+                            <textarea class="form-control" id="approvalRemarks" name="approvalRemarks" 
+                                      rows="3" placeholder="Enter justification for decision..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border fw-semibold" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary px-4" onclick="submitApproval()">
+                        Submit Decision
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Global variables
+        let currentPage = 0;
+        let pageSize = 10;
+        let totalPages = 0;
+        let approvalModal;
+
+        // Initialize page
+        $(document).ready(function() {
+            approvalModal = new bootstrap.Modal(document.getElementById('approvalModal'));
+            loadStatistics();
+            loadPendingRequests();
+        });
+
+        // Load statistics
+        function loadStatistics() {
+            $.ajax({
+                url: '/api/bsa-membership/statistics',
+                method: 'GET',
+                success: function(stats) {
+                    $('#pendingCount').text(stats.pending || 0);
+                    $('#approvedCount').text(stats.approved || 0);
+                    $('#rejectedCount').text(stats.rejected || 0);
+                    $('#verifiedCount').text(stats.verified || 0);
+                },
+                error: function() {
+                    console.error('Error loading statistics');
+                }
+            });
+        }
+
+        // Load pending requests
+        function loadPendingRequests(page = 0) {
+            showLoading();
+            currentPage = page;
+            
+            $.ajax({
+                url: '/api/bsa-membership/pending-vp-approval',
+                method: 'GET',
+                data: {
+                    page: page,
+                    size: pageSize
+                },
+                success: function(response) {
+                    renderPendingRequests(response.content);
+                    renderPagination(response);
+                    hideLoading();
+                },
+                error: function() {
+                    showAlert('Error loading pending requests. Please try again.', 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Render pending requests
+        function renderPendingRequests(requests) {
+            const tableBody = $('#pendingRequestsTable');
+            const noDataMessage = $('#noPendingRequests');
+            
+            tableBody.empty();
+            
+            if (requests.length === 0) {
+                noDataMessage.show();
+                return;
+            }
+            
+            noDataMessage.hide();
+            
+            requests.forEach(function(request) {
+                const statusClass = getStatusClass(request.membershipStatus);
+                const row = `
+                    <tr>
+                        <td class="fw-semibold text-muted">#${request.membershipId}</td>
+                        <td class="fw-medium">${request.studentName}</td>
+                        <td>${request.studentCid}</td>
+                        <td><span class="badge bg-light text-dark border">${request.bsaName}</span></td>
+                        <td>${request.fundingType}</td>
+                        <td class="text-muted">${formatDate(request.membershipRequestDate)}</td>
+                        <td><span class="status-badge ${statusClass}">${request.membershipStatus}</span></td>
+                        <td style="display: flex;">
+                            <a href="/bsa-membership/view?id=${request.membershipId}" class="btn btn-action btn-view me-1">
+                                View
+                            </a>
+                            <a href="/bsa-membership/approve?id=${request.membershipId}" class="btn btn-action btn-approve">
+                                Approve
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(row);
+            });
+        }
+
+        // Render pagination
+        function renderPagination(response) {
+            const pagination = $('#pagination');
+            pagination.empty();
+            
+            totalPages = response.totalPages;
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevDisabled = response.first ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item page-item-custom ${prevDisabled}">
+                    <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${currentPage - 1}); return false;">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            `);
+            
+            // Page numbers
+            for (let i = 0; i < totalPages; i++) {
+                const active = i === currentPage ? 'active' : '';
+                pagination.append(`
+                    <li class="page-item page-item-custom ${active}">
+                        <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${i}); return false;">
+                            ${i + 1}
+                        </a>
+                    </li>
+                `);
+            }
+            
+            // Next button
+            const nextDisabled = response.last ? 'disabled' : '';
+            pagination.append(`
+                <li class="page-item page-item-custom ${nextDisabled}">
+                    <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${currentPage + 1}); return false;">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            `);
+        }
+
+        // View details
+        function viewDetails(membershipId) {
+            // This would open a detailed view modal or navigate to details page
+            console.log('View details for:', membershipId);
+        }
+
+        // Open approval modal
+        function openApprovalModal(membershipId) {
+            showLoading();
+            
+            $.ajax({
+                url: `/api/bsa-membership/${membershipId}`,
+                method: 'GET',
+                success: function(membership) {
+                    // Populate modal fields
+                    $('#membershipId').val(membership.membershipId);
+                    $('#modalStudentName').val(membership.studentName);
+                    $('#modalStudentCid').val(membership.studentCid);
+                    $('#modalBsaName').val(membership.bsaName);
+                    $('#modalFundingType').val(membership.fundingType);
+                    $('#modalRequestDate').val(formatDate(membership.membershipRequestDate));
+                    
+                    // Reset form
+                    $('#approvalForm')[0].reset();
+                    $('#membershipId').val(membership.membershipId);
+                    
+                    // Show modal
+                    approvalModal.show();
+                    hideLoading();
+                },
+                error: function() {
+                    showAlert('Error loading membership details. Please try again.', 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Submit approval
+        function submitApproval() {
+            const formData = {
+                applicationId: $('#membershipId').val(),
+                approvalStatus: $('input[name="approvalStatus"]:checked').val(),
+                approvalRemarks: $('#approvalRemarks').val()
+            };
+            
+            if (!formData.approvalStatus) {
+                showAlert('Please select approve or reject', 'warning');
+                return;
+            }
+            
+            if (!formData.approvalRemarks) {
+                showAlert('Please enter remarks', 'warning');
+                return;
+            }
+            
+            showLoading();
+            
+            $.ajax({
+                url: '/api/bsa-membership/vp-approval',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    showAlert(response.message, 'success');
+                    approvalModal.hide();
+                    loadStatistics();
+                    loadPendingRequests(currentPage);
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : 'Error submitting approval';
+                    showAlert(errorMessage, 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Refresh data
+        function refreshData() {
+            loadStatistics();
+            loadPendingRequests(currentPage);
+        }
+
+        // Get status class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'PENDING': return 'status-pending';
+                case 'APPROVED': return 'status-approved';
+                case 'REJECTED': return 'status-rejected';
+                case 'VERIFIED': return 'status-verified';
+                default: return 'status-pending';
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            $('#loadingSpinner').fadeIn(200).css('display', 'flex');
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            $('#loadingSpinner').fadeOut(200);
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertClass = type === 'danger' ? 'alert-danger' : (type === 'warning' ? 'alert-warning' : 'alert-success');
+            const icon = type === 'danger' ? 'fa-exclamation-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+            
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show alert-custom" role="alert">
+                    <i class="fas ${icon} me-2"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+            
+            // Auto dismiss after 4 seconds
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
