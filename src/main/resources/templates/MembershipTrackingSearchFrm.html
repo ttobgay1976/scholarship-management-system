@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Application Tracking - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Quick Stats */
+        .quick-stat-card {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .quick-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Search Button */
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, #0056b3, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Recent Searches */
+        .recent-search-item {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .recent-search-item:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #content {
+                padding: 15px;
+            }
+            
+            .card-body-custom {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div id="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-search me-2"></i>
+                        Membership Application Tracking
+                    </h2>
+                    <p class="text-muted mb-0">Search and track membership application status</p>
+                </div>
+                <!-- <div>
+                    <a href="/status-tracking" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div> -->
+            </div>
+
+            <!-- Quick Statistics -->
+            <!-- <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-warning text-white" onclick="quickSearch('PENDING')">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h4 id="pendingCount">0</h4>
+                        <p class="mb-0">Pending</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-success text-white" onclick="quickSearch('APPROVED')">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4 id="approvedCount">0</h4>
+                        <p class="mb-0">Approved</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-info text-white" onclick="quickSearch('VERIFIED')">
+                        <i class="fas fa-user-check fa-2x mb-2"></i>
+                        <h4 id="verifiedCount">0</h4>
+                        <p class="mb-0">Verified</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-danger text-white" onclick="quickSearch('REJECTED')">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4 id="rejectedCount">0</h4>
+                        <p class="mb-0">Rejected</p>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Search Form -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Search Membership Application
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <form method="post" action="/membership-tracking/search">
+                        <div class="row g-3">
+                            <!-- <div class="col-md-12">
+                                <h6 class="text-muted mb-3">Enter Reference Number</h6>
+                            </div> -->
+                            <div class="col-md-8">
+                                <label class="form-label">Reference Number</label>
+                                <input type="text" class="form-control" id="referenceNumber" name="referenceNumber" placeholder="Enter membership reference number" required>
+                                <!-- <small class="text-muted">Enter the reference number provided when you submitted your membership application</small> -->
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-search text-white w-100">
+                                    <i class="fas fa-search me-2"></i>Search Application
+                            </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Searches -->
+            <!-- <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Searches
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div id="recentSearches">
+                        <div class="text-muted text-center">No recent searches</div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Loading Spinner -->
+            <!-- <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Searching...</span>
+                </div>
+                <p class="mt-2">Searching membership applications...</p>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadRecentSearches();
+        });
+
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/status-tracking/dashboard/stats');
+                const stats = await response.json();
+                
+                document.getElementById('pendingCount').textContent = stats.pendingMemberships || 0;
+                document.getElementById('approvedCount').textContent = stats.approvedMemberships || 0;
+                document.getElementById('verifiedCount').textContent = stats.verifiedMemberships || 0;
+                document.getElementById('rejectedCount').textContent = stats.rejectedMemberships || 0;
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+
+        // Form submission
+        document.getElementById('membershipSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        // Perform search
+        async function performSearch() {
+            try {
+                const searchParams = getSearchParams();
+                
+                // Validate reference number
+                if (!searchParams.referenceNumber || searchParams.referenceNumber.trim() === '') {
+                    showError('Please enter a reference number');
+                    return;
+                }
+                
+                // Save to recent searches
+                saveRecentSearch(searchParams);
+                
+                // Submit form directly to backend
+                const form = document.getElementById('membershipSearchForm');
+                form.submit();
+                
+            } catch (error) {
+                console.error('Error performing search:', error);
+                showError('Failed to perform search. Please try again.');
+            }
+        }
+
+        // Get search parameters from form
+        function getSearchParams() {
+            return {
+                referenceNumber: document.getElementById('referenceNumber').value
+            };
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('membershipSearchForm').reset();
+        }
+
+        // Save recent search
+        function saveRecentSearch(searchParams) {
+            const recentSearches = JSON.parse(localStorage.getItem('membershipRecentSearches') || '[]');
+            
+            // Create search description
+            const description = createSearchDescription(searchParams);
+            
+            // Add to recent searches (max 5)
+            const newSearch = {
+                description: description,
+                params: searchParams,
+                timestamp: new Date().toISOString()
+            };
+            
+            recentSearches.unshift(newSearch);
+            if (recentSearches.length > 5) {
+                recentSearches.pop();
+            }
+            
+            localStorage.setItem('membershipRecentSearches', JSON.stringify(recentSearches));
+            loadRecentSearches();
+        }
+
+        // Create search description
+        function createSearchDescription(searchParams) {
+            if (searchParams.referenceNumber) {
+                return `Reference: ${searchParams.referenceNumber}`;
+            }
+            return 'All Applications';
+        }
+
+        // Load recent searches
+        function loadRecentSearches() {
+            const recentSearches = JSON.parse(localStorage.getItem('membershipRecentSearches') || '[]');
+            const container = document.getElementById('recentSearches');
+            
+            if (recentSearches.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center">No recent searches</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            recentSearches.forEach((search, index) => {
+                const searchItem = document.createElement('div');
+                searchItem.className = 'recent-search-item';
+                searchItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-search text-muted me-2"></i>
+                            <span>${search.description}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted">${formatTime(search.timestamp)}</small>
+                            <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeRecentSearch(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                searchItem.onclick = function(e) {
+                    if (!e.target.closest('button')) {
+                        applyRecentSearch(search.params);
+                    }
+                };
+                container.appendChild(searchItem);
+            });
+        }
+
+        // Apply recent search
+        function applyRecentSearch(searchParams) {
+            // Fill form with search parameters
+            Object.keys(searchParams).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = searchParams[key];
+                }
+            });
+            
+            // Perform search
+            performSearch();
+        }
+
+        // Remove recent search
+        function removeRecentSearch(index) {
+            const recentSearches = JSON.parse(localStorage.getItem('membershipRecentSearches') || '[]');
+            recentSearches.splice(index, 1);
+            localStorage.setItem('membershipRecentSearches', JSON.stringify(recentSearches));
+            loadRecentSearches();
+        }
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>

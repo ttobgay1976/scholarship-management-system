@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Fund Request Statistics - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            background: #fff;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background-color: #fff;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-custom h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        /* Statistics Cards */
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(90deg, var(--success-color), #16a34a);
+        }
+
+        .stat-card.danger::before {
+            background: linear-gradient(90deg, var(--danger-color), #dc2626);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(90deg, var(--warning-color), #e0a800);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(90deg, var(--info-color), #2563eb);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .stat-card .stat-icon {
+            background: var(--primary-color);
+        }
+
+        .stat-card.success .stat-icon {
+            background: var(--success-color);
+        }
+
+        .stat-card.danger .stat-icon {
+            background: var(--danger-color);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: var(--warning-color);
+        }
+
+        .stat-card.info .stat-icon {
+            background: var(--info-color);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
+
+        .btn-secondary-custom {
+            background-color: #fff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .filter-section .row {
+            align-items: end;
+        }
+
+        /* Table Styles */
+        .table-custom {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-custom thead th {
+            background-color: #f8fafc;
+            border: none;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 15px;
+        }
+
+        .table-custom tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Progress Bar */
+        .progress-custom {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .progress-bar-custom {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Alert Styling */
+        .alert-custom {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+        }
+
+        .alert-success-custom {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #166534;
+            border-left: 4px solid #22c55e;
+        }
+
+        .alert-error-custom {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .loading-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+<!-- Page Content -->
+    <div id="content">
+        <!-- Header Area -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">BSA Fund Request Statistics</h2>
+                <p class="text-muted mb-0">Overview and analytics of fund requests</p>
+            </div>
+            <div>
+                <a href="/bsa-fund-request/list" class="btn btn-secondary-custom">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-custom alert-success-custom mb-4">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-custom alert-error-custom mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4" th:if="${statistics}">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('pending') != null ? statistics.get('pending') : 0}">0</div>
+                    <div class="stat-label">Pending Requests</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Awaiting verification</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('focal_verified') != null ? statistics.get('focal_verified') : 0}">0</div>
+                    <div class="stat-label">Focal Verified</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Ready for chief approval</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('chief_approved') != null ? statistics.get('chief_approved') : 0}">0</div>
+                    <div class="stat-label">Chief Approved</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Ready for accountant</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('accountant_approved') != null ? statistics.get('accountant_approved') : 0}">0</div>
+                    <div class="stat-label">Accountant Approved</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check"></i>
+                        <span>Ready for disbursement</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejected Requests -->
+        <div class="row g-4 mb-4" th:if="${statistics}">
+            <div class="col-md-4">
+                <div class="stat-card danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('focal_rejected') != null ? statistics.get('focal_rejected') : 0}">0</div>
+                    <div class="stat-label">Focal Rejected</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Rejected at verification</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('chief_rejected') != null ? statistics.get('chief_rejected') : 0}">0</div>
+                    <div class="stat-label">Chief Rejected</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Rejected at chief level</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-value" th:text="${statistics.get('accountant_rejected') != null ? statistics.get('accountant_rejected') : 0}">0</div>
+                    <div class="stat-label">Accountant Rejected</div>
+                    <div class="stat-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Rejected at accountant level</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <div class="card card-custom">
+                    <div class="card-header-custom">
+                        <h3><i class="fas fa-chart-bar me-2 text-primary"></i>Status Distribution</h3>
+                        <div>
+                            <button class="btn btn-sm btn-secondary-custom" onclick="refreshCharts()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <div class="card-header-custom">
+                        <h3><i class="fas fa-chart-pie me-2 text-primary"></i>Approval Rate</h3>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="chart-container">
+                            <canvas id="approvalChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Efficiency -->
+        <div class="card card-custom">
+            <div class="card-header-custom">
+                <h3><i class="fas fa-tachometer-alt me-2 text-primary"></i>Workflow Efficiency</h3>
+            </div>
+            <div class="card-body-custom">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Approval Pipeline</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Pending</span>
+                                <span th:text="${statistics.get('pending') != null ? statistics.get('pending') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-warning" 
+                                     th:style="'width: ' + ${statistics.get('pending') != null ? (statistics.get('pending') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Focal Verified</span>
+                                <span th:text="${statistics.get('focal_verified') != null ? statistics.get('focal_verified') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-info" 
+                                     th:style="'width: ' + ${statistics.get('focal_verified') != null ? (statistics.get('focal_verified') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Chief Approved</span>
+                                <span th:text="${statistics.get('chief_approved') != null ? statistics.get('chief_approved') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-primary" 
+                                     th:style="'width: ' + ${statistics.get('chief_approved') != null ? (statistics.get('chief_approved') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Accountant Approved</span>
+                                <span th:text="${statistics.get('accountant_approved') != null ? statistics.get('accountant_approved') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-success" 
+                                     th:style="'width: ' + ${statistics.get('accountant_approved') != null ? (statistics.get('accountant_approved') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Rejection Analysis</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Focal Rejected</span>
+                                <span th:text="${statistics.get('focal_rejected') != null ? statistics.get('focal_rejected') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-danger" 
+                                     th:style="'width: ' + ${statistics.get('focal_rejected') != null ? (statistics.get('focal_rejected') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Chief Rejected</span>
+                                <span th:text="${statistics.get('chief_rejected') != null ? statistics.get('chief_rejected') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-danger" 
+                                     th:style="'width: ' + ${statistics.get('chief_rejected') != null ? (statistics.get('chief_rejected') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Accountant Rejected</span>
+                                <span th:text="${statistics.get('accountant_rejected') != null ? statistics.get('accountant_rejected') : 0} + ' requests'"></span>
+                            </div>
+                            <div class="progress-custom">
+                                <div class="progress-bar-custom bg-danger" 
+                                     th:style="'width: ' + ${statistics.get('accountant_rejected') != null ? (statistics.get('accountant_rejected') * 10) : 0} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>Total Rejection Rate:</strong></span>
+                                <span class="text-danger">
+                                    <span th:text="${#numbers.formatDecimal(calculateRejectionRate(), 1, 1)} + '%'"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Data State -->
+        <div class="card card-custom" th:if="${statistics == null or statistics.empty}">
+            <div class="card-body-custom text-center py-5">
+                <i class="fas fa-chart-bar text-muted mb-3" style="font-size: 3rem;"></i>
+                <h5>No Statistics Available</h5>
+                <p class="text-muted">There are no fund requests to generate statistics from.</p>
+                <a href="/bsa-fund-request/list" class="btn btn-primary-custom">
+                    <i class="fas fa-list"></i> View Fund Requests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        // Get statistics from Thymeleaf context
+        const statistics = /*[[${statistics}]]*/ {};
+        
+        if (statistics && Object.keys(statistics).length > 0) {
+            initializeCharts(statistics);
+        }
+    });
+
+    function calculateRejectionRate() {
+        const statistics = /*[[${statistics}]]*/ {};
+        if (!statistics) return 0;
+        
+        const totalRejected = (statistics.focal_rejected || 0) + 
+                              (statistics.chief_rejected || 0) + 
+                              (statistics.accountant_rejected || 0);
+        const totalRequests = Object.values(statistics).reduce((sum, val) => sum + val, 0);
+        
+        return totalRequests > 0 ? (totalRejected / totalRequests) * 100 : 0;
+    }
+
+    function initializeCharts(statistics) {
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Pending', 'Focal Verified', 'Chief Approved', 'Accountant Approved', 'Focal Rejected', 'Chief Rejected', 'Accountant Rejected'],
+                datasets: [{
+                    label: 'Number of Requests',
+                    data: [
+                        statistics.pending || 0,
+                        statistics.focal_verified || 0,
+                        statistics.chief_approved || 0,
+                        statistics.accountant_approved || 0,
+                        statistics.focal_rejected || 0,
+                        statistics.chief_rejected || 0,
+                        statistics.accountant_rejected || 0
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(13, 110, 253, 0.8)',
+                        'rgba(25, 135, 84, 0.8)',
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(13, 110, 253, 1)',
+                        'rgba(25, 135, 84, 1)',
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Approval Rate Pie Chart
+        const approvalCtx = document.getElementById('approvalChart').getContext('2d');
+        const totalApproved = (statistics.focal_verified || 0) + 
+                              (statistics.chief_approved || 0) + 
+                              (statistics.accountant_approved || 0);
+        const totalRejected = (statistics.focal_rejected || 0) + 
+                              (statistics.chief_rejected || 0) + 
+                              (statistics.accountant_rejected || 0);
+        const totalPending = statistics.pending || 0;
+
+        new Chart(approvalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected', 'Pending'],
+                datasets: [{
+                    data: [totalApproved, totalRejected, totalPending],
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(220, 53, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(220, 53, 69, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function refreshCharts() {
+        location.reload();
+    }
+</script>
+</body>
+</html>

@@ -14,6 +14,7 @@ public class BSAMembershipDTO {
     private Long studentId;
     private String studentName;
     private String studentCid;
+    private String referenceNumber;
     private FundingType fundingType;
     private MembershipStatus membershipStatus;
     private LocalDateTime membershipRequestDate;
@@ -83,6 +84,14 @@ public class BSAMembershipDTO {
 
     public void setStudentCid(String studentCid) {
         this.studentCid = studentCid;
+    }
+
+    public String getReferenceNumber() {
+        return referenceNumber;
+    }
+
+    public void setReferenceNumber(String referenceNumber) {
+        this.referenceNumber = referenceNumber;
     }
 
     public FundingType getFundingType() {

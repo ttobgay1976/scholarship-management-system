@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>BSA Fund Request Chief Approval</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-fluid p-2 bg-body-secondary">BSA Fund Request Chief Approval</div>
+
+    <div class="mt-3 px-3">
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success mb-3">
+            <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger mb-3">
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Verified Requests Table -->
+        <div th:if="${verifiedRequests != null and !verifiedRequests.empty}">
+            <!-- <h5 class="mb-3">Verified Fund Requests for Chief Approval</h5>
+            <span class="badge bg-info mb-3" th:text="${verifiedRequests.size()} + ' requests'"></span>
+             -->
+            <table class="table table-bordered table-hover mt-3">
+                <thead class="table-dark">
+                            <tr>
+                                <th>Request ID</th>
+                                <th>BSA</th>
+                                <th>Event Type</th>
+                                <th>Activity Description</th>
+                                <th>Requested Amount</th>
+                                <th>Approved Amount (Focal)</th>
+                                <th>Verification Date</th>
+                                <th>Action</th>
+                            </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${verifiedRequests}">
+                        <td th:text="${request.fundRequestId}"></td>
+                        <td th:text="${request.bsaName}"></td>
+                        <td th:text="${request.eventType}"></td>
+                        <td th:text="${#strings.abbreviate(request.activityDescription, 50)}"></td>
+                        <td th:text="${#numbers.formatDecimal(request.requestedAmount, 0, 2)} + ' Nu.'"></td>
+                        <td th:text="${request.approvedAmount != null ? #numbers.formatDecimal(request.approvedAmount, 0, 2) + ' Nu.' : 'N/A'}"></td>
+                        <td th:text="${request.focalVerificationDate != null ? #temporals.format(request.focalVerificationDate, 'MMM dd, yyyy') : 'N/A'}"></td>
+                        <td>
+                            <a th:href="@{/bsa-fund-request/chief-approve/{id}(id=${request.fundRequestId})}" 
+                               class="btn btn-primary btn-sm">
+                                Approve
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Single Request Approval (when ID is provided) -->
+        <div th:if="${fundRequest}">
+            <h5 class="mb-3">Fund Request Details</h5>
+            <span class="badge bg-info mb-3" th:text="${fundRequest.fundRequestStatus}"></span>
+            <!-- Request Information -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Request ID:</strong>
+                    <span th:text="${fundRequest.fundRequestId}"></span>
+                </div>
+                <div class="col-md-6">
+                    <strong>BSA:</strong>
+                    <span th:text="${fundRequest.bsaName}"></span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Event Type:</strong>
+                    <span th:text="${fundRequest.eventType}"></span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Requested Amount:</strong>
+                    <span th:text="${#numbers.formatDecimal(fundRequest.requestedAmount, 0, 2)} + ' Nu.'"></span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>Focal Approved Amount:</strong>
+                    <span th:text="${fundRequest.approvedAmount != null ? #numbers.formatDecimal(fundRequest.approvedAmount, 0, 2) + ' Nu.' : 'N/A'}"></span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Focal Verification Date:</strong>
+                    <span th:text="${fundRequest.focalVerificationDate != null ? #temporals.format(fundRequest.focalVerificationDate, 'MMM dd, yyyy') : 'N/A'}"></span>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-12">
+                    <strong>Activity Description:</strong>
+                    <p th:text="${fundRequest.activityDescription}"></p>
+                </div>
+            </div>
+
+            <div class="row mb-4" th:if="${fundRequest.focalRemarks}">
+                <div class="col-12">
+                    <strong>Focal Remarks:</strong>
+                    <p th:text="${fundRequest.focalRemarks}"></p>
+                </div>
+            </div>
+
+            <!-- Chief Approval Form -->
+            <form th:action="@{/bsa-fund-request/chief-approve/{id}(id=${fundRequest.fundRequestId})}" 
+                  th:object="${approvalForm}" method="post">
+                
+                <!-- Hidden Fields -->
+                <input type="hidden" th:field="*{fundRequestId}" />
+
+                <!-- Decision Options -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6>Chief Approval Decision</h6>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="verifierStatus" value="APPROVED" th:field="*{verifierStatus}" id="approveOption">
+                            <label class="form-check-label" for="approveOption">
+                                <strong>Approve</strong> - Approve and forward to Accountant
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="verifierStatus" value="REJECTED" th:field="*{verifierStatus}" id="rejectOption">
+                            <label class="form-check-label" for="rejectOption">
+                                <strong>Reject</strong> - Reject this fund request
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approved Amount (shown only when approved) -->
+                <div class="row mb-4" id="approvedAmountSection" style="display: none;">
+                    <div class="col-md-6">
+                        <label for="approvedAmount" class="form-label">Chief Approved Amount (Nu.)</label>
+                        <input type="number" class="form-control" id="approvedAmount" th:field="*{approvedAmount}" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <!-- Remarks -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <label for="verifierRemarks" class="form-label">Chief Approval Remarks</label>
+                        <textarea class="form-control" id="verifierRemarks" th:field="*{verifierRemarks}" rows="3" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            Submit Approval
+                        </button>
+                        <a href="/bsa-fund-request/chief-approve" class="btn btn-secondary">
+                            Back to Verified Requests
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Show/hide approved amount based on decision
+        document.querySelectorAll('input[name="verifierStatus"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const approvedAmountSection = document.getElementById('approvedAmountSection');
+                if (this.value === 'APPROVED') {
+                    approvedAmountSection.style.display = 'block';
+                } else {
+                    approvedAmountSection.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

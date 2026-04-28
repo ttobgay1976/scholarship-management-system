@@ -16,6 +16,16 @@ public class BSAMembershipFormBean {
     private String vpRemarks;
     private String focalRemarks;
     
+    // Additional fields for enhanced form structure
+    private Long collegeId;
+    private String collegeName;
+    private String contactNumber;
+    private String emailAddress;
+    private String address;
+    private String program;
+    private Long indexNumber;
+    private String programCourse;
+    
     // Constructors
     public BSAMembershipFormBean() {}
     
@@ -105,6 +115,71 @@ public class BSAMembershipFormBean {
         this.focalRemarks = focalRemarks;
     }
     
+    // Getters and Setters for new fields
+    public Long getCollegeId() {
+        return collegeId;
+    }
+    
+    public void setCollegeId(Long collegeId) {
+        this.collegeId = collegeId;
+    }
+    
+    public String getCollegeName() {
+        return collegeName;
+    }
+    
+    public void setCollegeName(String collegeName) {
+        this.collegeName = collegeName;
+    }
+    
+    public String getContactNumber() {
+        return contactNumber;
+    }
+    
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+    
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+    
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+    
+    public String getAddress() {
+        return address;
+    }
+    
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    
+    public String getProgram() {
+        return program;
+    }
+    
+    public void setProgram(String program) {
+        this.program = program;
+    }
+    
+    public Long getIndexNumber() {
+        return indexNumber;
+    }
+    
+    public void setIndexNumber(Long indexNumber) {
+        this.indexNumber = indexNumber;
+    }
+    
+    public String getProgramCourse() {
+        return programCourse;
+    }
+    
+    public void setProgramCourse(String programCourse) {
+        this.programCourse = programCourse;
+    }
+    
     @Override
     public String toString() {
         return "BSAMembershipFormBean{" +
@@ -115,6 +190,10 @@ public class BSAMembershipFormBean {
                 ", studentName='" + studentName + '\'' +
                 ", fundingType=" + fundingType +
                 ", membershipStatus=" + membershipStatus +
+                ", collegeId=" + collegeId +
+                ", collegeName='" + collegeName + '\'' +
+                ", contactNumber='" + contactNumber + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
                 '}';
     }
 }

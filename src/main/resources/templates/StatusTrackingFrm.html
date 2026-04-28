@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Tracking Dashboard - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --sidebar-width: 260px;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-verified {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        /* Table Styles */
+        .table-custom {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-custom thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Tabs */
+        .nav-tabs .nav-link {
+            color: var(--text-main);
+            border: none;
+            background: transparent;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* Pagination */
+        .pagination-custom {
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #content {
+                padding: 15px;
+            }
+            
+            .card-body-custom {
+                padding: 20px;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div id="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Status Tracking Dashboard
+                    </h2>
+                    <p class="text-muted mb-0">Track and monitor application statuses</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card bg-warning text-white">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h4 id="pendingCount">0</h4>
+                        <p class="mb-0">Pending</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card bg-success text-white">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4 id="approvedCount">0</h4>
+                        <p class="mb-0">Approved</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card bg-info text-white">
+                        <i class="fas fa-user-check fa-2x mb-2"></i>
+                        <h4 id="verifiedCount">0</h4>
+                        <p class="mb-0">Verified</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card bg-danger text-white">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4 id="rejectedCount">0</h4>
+                        <p class="mb-0">Rejected</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access Cards -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-header card-header-custom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-users me-2"></i>
+                                Membership Application Tracking
+                            </h5>
+                        </div>
+                        <div class="card-body card-body-custom">
+                            <p class="text-muted">Search and track membership application status with advanced filtering options.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-primary" onclick="window.location.href='/membership-tracking/search'">
+                                    <i class="fas fa-search me-2"></i>Search Applications
+                                </button>
+                                <small class="text-muted">
+                                    <i class="fas fa-arrow-right me-1"></i>Advanced tracking
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-header card-header-custom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-dollar-sign me-2"></i>
+                                Fund Request Tracking
+                            </h5>
+                        </div>
+                        <div class="card-body card-body-custom">
+                            <p class="text-muted">Monitor fund requests, approval status, and financial disbursement tracking.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-primary" onclick="window.location.href='/fund-request-tracking/search'">
+                                    <i class="fas fa-search me-2"></i>Search Requests
+                                </button>
+                                <small class="text-muted">
+                                    <i class="fas fa-arrow-right me-1"></i>Financial tracking
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card card-custom h-100">
+                        <div class="card-header card-header-custom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope me-2"></i>
+                                Email Audit
+                            </h5>
+                        </div>
+                        <div class="card-body card-body-custom">
+                            <p class="text-muted">View email notification history and delivery status for all communications.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-primary" onclick="showEmailAudit()">
+                                    <i class="fas fa-search me-2"></i>View Audit
+                                </button>
+                                <small class="text-muted">
+                                    <i class="fas fa-arrow-right me-1"></i>Communication log
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Audit Section (Hidden by default, shown when clicked) -->
+            <div class="card card-custom" id="emailAuditSection" style="display: none;">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>
+                        Email Audit Log
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <!-- Email Filter Section -->
+                    <div class="filter-section">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Recipient Email</label>
+                                <input type="email" class="form-control" id="emailRecipientFilter" placeholder="Enter email">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Email Type</label>
+                                <select class="form-select" id="emailTypeFilter">
+                                    <option value="">All Types</option>
+                                    <option value="MEMBERSHIP_APPROVAL">Membership Approval</option>
+                                    <option value="FUND_REQUEST_APPROVAL">Fund Request Approval</option>
+                                    <option value="VERIFICATION">Verification</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="emailStatusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="SENT">Sent</option>
+                                    <option value="FAILED">Failed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="datetime-local" class="form-control" id="emailStartDate">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-3">
+                                <label class="form-label">End Date</label>
+                                <input type="datetime-local" class="form-control" id="emailEndDate">
+                            </div>
+                            <div class="col-md-9">
+                                <button class="btn btn-primary" onclick="filterEmails()">
+                                    <i class="fas fa-filter me-2"></i>Apply Filters
+                                </button>
+                                <button class="btn btn-outline-secondary ms-2" onclick="clearEmailFilters()">
+                                    <i class="fas fa-times me-2"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="emailLoading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading email audit...</p>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-custom" id="emailTable">
+                            <thead>
+                                <tr>
+                                    <th>Recipient</th>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Status</th>
+                                    <th>Sent Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emailTableBody">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+        });
+
+        // Show email audit section
+        function showEmailAudit() {
+            const emailSection = document.getElementById('emailAuditSection');
+            emailSection.style.display = emailSection.style.display === 'none' ? 'block' : 'none';
+            
+            if (emailSection.style.display === 'block') {
+                loadEmailAudit();
+            }
+        }
+
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/status-tracking/dashboard/stats');
+                const stats = await response.json();
+                
+                document.getElementById('pendingCount').textContent = stats.pendingMemberships || 0;
+                document.getElementById('approvedCount').textContent = stats.approvedMemberships || 0;
+                document.getElementById('verifiedCount').textContent = stats.verifiedMemberships || 0;
+                document.getElementById('rejectedCount').textContent = stats.rejectedMemberships || 0;
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+
+        // Load email audit
+        async function loadEmailAudit() {
+            showLoading('emailLoading');
+            
+            try {
+                const response = await fetch('/api/status-tracking/emails');
+                const data = await response.json();
+                
+                populateEmailTable(data.emails);
+            } catch (error) {
+                console.error('Error loading email audit:', error);
+                showError('Failed to load email audit');
+            } finally {
+                hideLoading('emailLoading');
+            }
+        }
+
+        // Populate email table
+        function populateEmailTable(emails) {
+            const tbody = document.getElementById('emailTableBody');
+            tbody.innerHTML = '';
+            
+            if (emails.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No email records found</td></tr>';
+                return;
+            }
+            
+            emails.forEach(email => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${email.recipientEmail}</td>
+                    <td>${email.emailType}</td>
+                    <td>${email.subject}</td>
+                    <td><span class="status-badge status-${email.status.toLowerCase()}">${email.status}</span></td>
+                    <td>${formatDateTime(email.sentDate)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info" onclick="viewEmailDetails(${email.emailAuditId})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Filter emails
+        function filterEmails() {
+            const filters = {
+                recipientEmail: document.getElementById('emailRecipientFilter').value,
+                emailType: document.getElementById('emailTypeFilter').value,
+                status: document.getElementById('emailStatusFilter').value,
+                startDate: document.getElementById('emailStartDate').value,
+                endDate: document.getElementById('emailEndDate').value
+            };
+            
+            // Remove empty filters
+            Object.keys(filters).forEach(key => {
+                if (!filters[key]) delete filters[key];
+            });
+            
+            loadEmailAuditWithFilters(filters);
+        }
+
+        // Load email audit with filters
+        async function loadEmailAuditWithFilters(filters) {
+            showLoading('emailLoading');
+            
+            try {
+                const params = new URLSearchParams(filters);
+                const response = await fetch(`/api/status-tracking/emails?${params}`);
+                const data = await response.json();
+                
+                populateEmailTable(data.emails);
+            } catch (error) {
+                console.error('Error loading email audit:', error);
+                showError('Failed to load email audit');
+            } finally {
+                hideLoading('emailLoading');
+            }
+        }
+
+        // Clear email filters
+        function clearEmailFilters() {
+            document.getElementById('emailRecipientFilter').value = '';
+            document.getElementById('emailTypeFilter').value = '';
+            document.getElementById('emailStatusFilter').value = '';
+            document.getElementById('emailStartDate').value = '';
+            document.getElementById('emailEndDate').value = '';
+            loadEmailAudit();
+        }
+
+        // View email details
+        function viewEmailDetails(emailId) {
+            alert(`View details for email ID: ${emailId} - Feature coming soon!`);
+        }
+
+        // Utility functions
+        function showLoading(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+
+        function hideLoading(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>

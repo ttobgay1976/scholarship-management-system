@@ -78,6 +78,9 @@ public class BSAMembership {
     @Column(name = "updated_by", length = 100)
     private String updatedBy;
 
+    @Column(name = "reference_number", nullable = false, length = 20, unique = true)
+    private String referenceNumber;
+
     // Constructors
     public BSAMembership() {
         this.membershipStatus = MembershipStatus.PENDING;
@@ -259,6 +262,14 @@ public class BSAMembership {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public String getReferenceNumber() {
+        return referenceNumber;
+    }
+
+    public void setReferenceNumber(String referenceNumber) {
+        this.referenceNumber = referenceNumber;
     }
 
     @Override

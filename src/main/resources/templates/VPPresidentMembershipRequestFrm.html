@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VP/President Membership Request - SPRMS</title>
+    
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Form Styles */
+        .form-label {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Button Styles */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, var(--primary-hover), #004085);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: #6c757d;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        /* Alert Styles */
+        .alert-custom {
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Position Badge */
+        .position-badge {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Required Asterisk */
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(135deg, #e7f3ff, #cce7ff);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-box h6 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            margin-bottom: 0;
+            font-size: 14px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-user-tie me-2"></i>
+                        VP/President Membership Request
+                    </h2>
+                    <p class="text-muted mb-0">Submit a request for VP/President membership position</p>
+                </div>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <h6><i class="fas fa-info-circle me-2"></i>Important Information</h6>
+                <p>This form is exclusively for current Presidents and Vice Presidents to request membership for different positions within Bhutanese Students Associations. Your request will be reviewed and verified by the Focal Officer.</p>
+            </div>
+
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Request Form Card -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Membership Request Form
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <form id="vpMembershipForm">
+                        <!-- Requester Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label required">Requester Name</label>
+                                <input type="text" class="form-control" id="requesterName" name="requesterName" 
+                                       placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label required">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="Enter your email address" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required">Contact Number</label>
+                                <input type="tel" class="form-control" id="contactNumber" name="contactNumber" 
+                                       placeholder="Enter your contact number" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required">CID Number</label>
+                                <input type="text" class="form-control" id="cidNo" name="cidNo" 
+                                       placeholder="Enter your CID number" required>
+                            </div>
+                        </div>
+
+                        <!-- BSA Association -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label required">BSA Association</label>
+                                <select class="form-select" id="bsaSelect" name="bsaId" required>
+                                    <option value="" selected disabled>-- Select BSA --</option>
+                                    <option th:each="bsa : ${activeBSAs}" 
+                                            th:value="${bsa.bsaId}"
+                                            th:text="${bsa.bsaName}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Requested Position -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label class="form-label required">Requested Position</label>
+                                <select class="form-select" id="requestedPosition" name="requestedPosition" required>
+                                    <option value="" selected disabled>-- Select Requested Position --</option>
+                                    <option value="PRESIDENT">President</option>
+                                    <option value="VICE_PRESIDENT">Vice President</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Request Reason -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label required">Request Reason</label>
+                                <textarea class="form-control" id="requestReason" name="requestReason" 
+                                          rows="4" placeholder="Please provide a detailed reason for your position request..." 
+                                          maxlength="1000" required></textarea>
+                                <small class="text-muted">Maximum 1000 characters</small>
+                            </div>
+                        </div>
+
+                        <!-- Experience Document Upload -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <label class="form-label">Experience Document</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="experienceDocument" name="experienceDocument" 
+                                           accept=".pdf,.doc,.docx" onchange="handleFileSelect(this)">
+                                    <label class="input-group-text" for="experienceDocument">
+                                        <i class="fas fa-upload me-2"></i>Choose File
+                                    </label>
+                                </div>
+                                <small class="text-muted">Optional - Upload PDF, DOC, or DOCX file (Max 10MB)</small>
+                                <div id="fileInfo" class="mt-2" style="display: none;">
+                                    <div class="alert alert-info alert-custom">
+                                        <i class="fas fa-file me-2"></i>
+                                        <span id="fileName"></span>
+                                        <span id="fileSize" class="ms-2 text-muted"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                    <label class="form-check-label" for="termsCheck">
+                                        I understand that this request will be reviewed by the Focal Officer and that all provided information is accurate and complete.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary-custom me-2">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Submit Request
+                                </button>
+                                <button type="button" class="btn btn-secondary-custom" onclick="resetForm()">
+                                    <i class="fas fa-redo me-2"></i>
+                                    Reset Form
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Initialize page
+        $(document).ready(function() {
+            loadBSAList();
+        });
+
+        // Load BSA list
+        function loadBSAList() {
+            // BSA list is loaded via Thymeleaf template
+            console.log('BSA list loaded via template');
+        }
+
+        // Handle form submission
+        $('#vpMembershipForm').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form fields
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Create FormData for file upload
+            const formData = new FormData();
+            formData.append('requesterName', $('#requesterName').val().trim());
+            formData.append('email', $('#email').val().trim());
+            formData.append('contactNumber', $('#contactNumber').val().trim());
+            formData.append('cidNo', $('#cidNo').val().trim());
+            formData.append('bsaId', $('#bsaSelect').val());
+            formData.append('requestedPosition', $('#requestedPosition').val());
+            formData.append('requestReason', $('#requestReason').val().trim());
+            
+            // Add experience document if selected
+            const experienceFile = $('#experienceDocument')[0].files[0];
+            if (experienceFile) {
+                formData.append('experienceDocument', experienceFile);
+            }
+            
+            showLoading();
+            
+            $.ajax({
+                url: '/api/vp-president-membership/public-request',
+                method: 'POST',
+                processData: false,
+                contentType: false,
+                data: formData,
+                beforeSend: function(xhr) {
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function(response) {
+                    showAlert('VP/President membership request submitted successfully!', 'success');
+                    resetForm();
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    console.error('Error response:', xhr);
+                    console.error('Status:', xhr.status);
+                    console.error('Response text:', xhr.responseText);
+                    
+                    let errorMessage = 'Error submitting membership request';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (xhr.responseText) {
+                        errorMessage = 'Server error: ' + xhr.responseText;
+                    } else if (xhr.status === 400) {
+                        errorMessage = 'Bad Request - Please check all required fields and try again.';
+                    } else if (xhr.status === 500) {
+                        errorMessage = 'Server error - Please try again later.';
+                    }
+                    
+                    showAlert(errorMessage, 'danger');
+                    hideLoading();
+                }
+            });
+        });
+
+        // Validate form fields
+        function validateForm() {
+            const requiredFields = ['requesterName', 'email', 'contactNumber', 'cidNo', 'bsaSelect', 'requestedPosition', 'requestReason'];
+            
+            for (let field of requiredFields) {
+                const value = $('#' + field).val().trim();
+                if (!value) {
+                    showAlert('Please fill in all required fields', 'warning');
+                    $('#' + field).focus();
+                    return false;
+                }
+            }
+            
+            // Validate email format
+            const email = $('#email').val().trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showAlert('Please enter a valid email address', 'warning');
+                $('#email').focus();
+                return false;
+            }
+            
+            // Validate request reason length
+            const requestReason = $('#requestReason').val().trim();
+            if (requestReason.length < 50) {
+                showAlert('Request reason must be at least 50 characters long', 'warning');
+                $('#requestReason').focus();
+                return false;
+            }
+            
+            // Validate file size if uploaded
+            const experienceFile = $('#experienceDocument')[0].files[0];
+            if (experienceFile) {
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (experienceFile.size > maxSize) {
+                    showAlert('Experience document must be less than 10MB', 'warning');
+                    $('#experienceDocument').focus();
+                    return false;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                if (!allowedTypes.includes(experienceFile.type)) {
+                    showAlert('Experience document must be PDF, DOC, or DOCX format', 'warning');
+                    $('#experienceDocument').focus();
+                    return false;
+                }
+            }
+            
+            // Check if BSA is selected
+            if (!$('#bsaSelect').val()) {
+                showAlert('Please select a BSA', 'warning');
+                $('#bsaSelect').focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Handle file selection
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                const fileName = file.name;
+                const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                
+                $('#fileName').text(fileName);
+                $('#fileSize').text('(' + fileSize + ')');
+                $('#fileInfo').show();
+            } else {
+                $('#fileInfo').hide();
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            $('#vpMembershipForm')[0].reset();
+            $('#fileInfo').hide();
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            $('#loadingSpinner').show();
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            $('#loadingSpinner').hide();
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show alert-custom" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<th:block th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-card h5 {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .stats-card h3 {
+        margin: 5px 0 0 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+
+</head>
+
+<body>
+	<section layout:fragment="content">
+
+		<div class="container-fluid p-2 bg-body-secondary">BSA College Registration List</div>
+
+		<!-- Statistics Card -->
+		<!-- <div class="row mb-4">
+			<div class="col-md-3">
+				<div class="stats-card">
+					<h5>Total Colleges</h5>
+					<h3 th:text="${totalCount != null ? totalCount : 0}">0</h3>
+				</div>
+			</div>
+		</div> -->
+
+		<!-- Back to Create Button -->
+		<!-- <div class="mb-3">
+			<a href="/bsa-college-registration/create" class="btn btn-primary">
+				Register New Colleges
+			</a>
+		</div> -->
+
+		<!-- Registrations Table -->
+		<table class="table table-bordered table-hover mt-3">
+			<thead class="table-dark">
+				<tr>
+					<th>BSA Name</th>
+					<th>College Name</th>
+					<th>Short Name</th>
+					<th>Country</th>
+					<th>State</th>
+					<th>City</th>
+					<th>Registration Date</th>
+					<th>Status</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${registrations == null or #lists.isEmpty(registrations)}">
+					<td colspan="8" class="text-center">No college registrations found.</td>
+				</tr>
+				<tr th:each="registration : ${registrations}">
+					<td th:text="${registration != null and registration.bsaName != null ? registration.bsaName : ''}"></td>
+					<td th:text="${registration != null and registration.collegeName != null ? registration.collegeName : ''}"></td>
+					<td th:text="${registration != null and registration.collegeShortName != null ? registration.collegeShortName : ''}"></td>
+					<td th:text="${registration != null and registration.countryName != null ? registration.countryName : ''}"></td>
+					<td th:text="${registration != null and registration.stateName != null ? registration.stateName : ''}"></td>
+					<td th:text="${registration != null and registration.cityName != null ? registration.cityName : ''}"></td>
+					<td th:text="${registration != null and registration.registrationDate != null ? #temporals.format(registration.registrationDate, 'yyyy-MM-dd') : ''}"></td>
+					<td th:text="${registration != null and registration.status != null ? registration.status : ''}"></td>
+					<td class="action-buttons" style="display: flex;">
+						<!-- Activate button for inactive registrations -->
+						<form th:if="${registration != null and registration.status != null and registration.status == 'INACTIVE'}" 
+							  th:action="@{/bsa-college-registration/activate/{registrationId}(registrationId=${registration.registrationId})}" 
+							  method="post" style="display: inline;" 
+							  onsubmit="return confirm('Are you sure you want to activate this registration?')">
+							<input type="hidden" name="bsaId" th:value="${registration.bsaId}" />
+							<button type="submit" class="btn btn-success btn-sm" title="Activate Registration">
+								Activate
+							</button>
+						</form>
+						
+						<!-- Deactivate button for active registrations -->
+						<form th:if="${registration != null and registration.status != null and registration.status == 'ACTIVE'}" 
+							  th:action="@{/bsa-college-registration/deactivate/{registrationId}(registrationId=${registration.registrationId})}" 
+							  method="post" style="display: inline;" 
+							  onsubmit="return confirm('Are you sure you want to deactivate this registration?')">
+							<input type="hidden" name="bsaId" th:value="${registration.bsaId}" />
+							<button type="submit" class="btn btn-warning btn-sm" title="Deactivate Registration">
+								Deactivate
+							</button>
+						</form>
+						
+						<!-- Delete button -->
+						<form th:action="@{/bsa-college-registration/delete/{registrationId}(registrationId=${registration.registrationId})}" 
+							  method="post" style="display: inline;" 
+							  onsubmit="return confirm('Are you sure you want to delete this registration?')">
+							<input type="hidden" name="bsaId" th:value="${registration.bsaId}" />
+							<button type="submit" class="btn btn-danger btn-sm" title="Delete Registration">
+								Delete
+							</button>
+						</form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Success/Error Messages -->
+		<div th:if="${successMessage != null and !#strings.isEmpty(successMessage)}" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+			<span th:text="${successMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		
+		<div th:if="${errorMessage != null and !#strings.isEmpty(errorMessage)}" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+			<span th:text="${errorMessage}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+
+	</section>
+
+	<th:block th:replace="~{fragments/commonresource_js :: common_resource_js}"></th:block>
+
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA Fund Request Details - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            background: #fff;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background-color: #fff;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header-custom h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        /* Section Styling */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(13, 110, 253, 0.1);
+            color: var(--primary-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #334155;
+            margin: 0;
+        }
+
+        /* Info Display */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 5px;
+            font-size: 0.875rem;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .amount-display {
+            font-weight: 600;
+            color: #059669;
+            font-size: 1.1rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+
+        .status-focal_verified {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #084298;
+        }
+
+        .status-focal_rejected {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+
+        .status-chief_approved {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: #0f5132;
+        }
+
+        .status-chief_rejected {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+
+        .status-accountant_approved {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: #0f5132;
+        }
+
+        .status-accountant_rejected {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+
+        .status-funded {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: #0f5132;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
+
+        .btn-secondary-custom {
+            background-color: #fff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: #f8fafc;
+            border-color: #94a3b8;
+            color: #1e293b;
+        }
+
+        .btn-success-custom {
+            background-color: #28a745;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+
+        .btn-success-custom:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning-custom {
+            background-color: #ffc107;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            color: #212529;
+        }
+
+        .btn-warning-custom:hover {
+            background-color: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #e2e8f0;
+        }
+
+        .timeline-item.completed::before {
+            background: var(--success-color);
+        }
+
+        .timeline-item.rejected::before {
+            background: var(--danger-color);
+        }
+
+        .timeline-content {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .timeline-content.completed {
+            border-left-color: var(--success-color);
+        }
+
+        .timeline-content.rejected {
+            border-left-color: var(--danger-color);
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .timeline-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .timeline-description {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        /* Document List */
+        .document-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .document-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .document-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(13, 110, 253, 0.1);
+            color: var(--primary-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .document-name {
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .document-type {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Participant List */
+        .participant-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .participant-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .participant-details {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Alert Styling */
+        .alert-custom {
+            border-radius: 8px;
+            border: none;
+            padding: 15px 20px;
+        }
+
+        .alert-success-custom {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #166534;
+            border-left: 4px solid #22c55e;
+        }
+
+        .alert-error-custom {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+<!-- Page Content -->
+    <div id="content">
+        <!-- Header Area -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Fund Request Details</h2>
+                <p class="text-muted mb-0">View complete fund request information</p>
+            </div>
+            <!-- <div>
+                <a href="/bsa-fund-request/list" class="btn btn-secondary-custom">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div> -->
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-custom alert-success-custom mb-4">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-custom alert-error-custom mb-4">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="card card-custom" th:if="${fundRequest}">
+            <div class="card-header-custom">
+                <h3><i class="fas fa-file-alt me-2 text-primary"></i>Fund Request #<span th:text="${fundRequest.fundRequestId}"></span></h3>
+                <!-- <div class="d-flex align-items-center gap-3">
+                    <span class="status-badge" 
+                          th:classappend="'status-' + ${#strings.toLowerCase(fundRequest.fundRequestStatus)}"
+                          th:text="${fundRequest.fundRequestStatus}"></span>
+                    <div class="action-buttons"> -->
+                        <!-- Focal Officer Actions -->
+                        <!-- <a th:if="${fundRequest.fundRequestStatus == 'PENDING'}" 
+                           th:href="@{/bsa-fund-request/verify/{id}(id=${fundRequest.fundRequestId})}" 
+                           class="btn btn-warning-custom" title="Verify">
+                            <i class="fas fa-check-circle"></i> Verify
+                        </a> -->
+                        
+                        <!-- Chief Actions -->
+                        <!-- <a th:if="${fundRequest.fundRequestStatus == 'FOCAL_VERIFIED'}" 
+                           th:href="@{/bsa-fund-request/chief-approve/{id}(id=${fundRequest.fundRequestId})}" 
+                           class="btn btn-success-custom" title="Approve">
+                            <i class="fas fa-thumbs-up"></i> Approve
+                        </a> -->
+                        
+                        <!-- Accountant Actions -->
+                        <!-- <a th:if="${fundRequest.fundRequestStatus == 'CHIEF_APPROVED'}" 
+                           th:href="@{/bsa-fund-request/accountant-approve/{id}(id=${fundRequest.fundRequestId})}" 
+                           class="btn btn-success-custom" title="Approve">
+                            <i class="fas fa-dollar-sign"></i> Approve
+                        </a>
+                    </div>
+                </div> -->
+            </div>
+            
+            <div class="card-body-custom">
+                <!-- Request Information -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                    <h5 class="section-title">Request Information</h5>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item" style="display: none;">
+                        <div class="info-label">Request ID</div>
+                        <div class="info-value" th:text="${fundRequest.fundRequestId}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">BSA Name</div>
+                        <div class="info-value" th:text="${fundRequest.bsaName}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">BSA Code</div>
+                        <div class="info-value" th:text="${fundRequest.bsaCode}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Requested By</div>
+                        <div class="info-value" th:text="${fundRequest.requestedByName}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Requester CID</div>
+                        <div class="info-value" th:text="${fundRequest.requestedByCid}"></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Request Date</div>
+                        <div class="info-value" th:text="${#temporals.format(fundRequest.requestDate, 'MMM dd, yyyy hh:mm a')}"></div>
+                    </div>
+                </div>
+
+                <!-- Activity Details -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-bullseye"></i></div>
+                    <h5 class="section-title">Activity Details</h5>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="info-label">Activity Description</div>
+                        <div class="info-value" th:text="${fundRequest.activityDescription}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label">Requested Amount</div>
+                        <div class="amount-display" th:text="${#numbers.formatDecimal(fundRequest.requestedAmount, 0, 2)} + ' Nu.'"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-label">Approved Amount</div>
+                        <div class="amount-display" th:if="${fundRequest.approvedAmount != null}" 
+                             th:text="${#numbers.formatDecimal(fundRequest.approvedAmount, 0, 2)} + ' Nu.'"></div>
+                        <div class="info-value" th:if="${fundRequest.approvedAmount == null}">Not yet approved</div>
+                    </div>
+                </div>
+
+                <!-- Financial Information -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-university"></i></div>
+                    <h5 class="section-title">Financial Information</h5>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="info-label">Joint Account Details</div>
+                        <div class="info-value" th:text="${fundRequest.jointAccountDetails}"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="info-label">Bank Details</div>
+                        <div class="info-value" th:text="${fundRequest.bankDetails}"></div>
+                    </div>
+                </div>
+
+                <!-- Documents -->
+                <div class="section-header" th:if="${fundRequest.documents != null and !fundRequest.documents.empty}">
+                    <div class="section-icon"><i class="fas fa-file-alt"></i></div>
+                    <h5 class="section-title">Uploaded Documents</h5>
+                </div>
+
+                <div class="row g-4 mb-4" th:if="${fundRequest.documents != null and !fundRequest.documents.empty}">
+                    <div class="col-12">
+                        <ul class="document-list">
+                            <li class="document-item" th:each="document : ${fundRequest.documents}">
+                                <div class="document-info">
+                                    <div class="document-icon">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                    <div>
+                                        <div class="document-name" th:text="${document.originalFileName}"></div>
+                                        <div class="document-type" th:text="${document.documentType}"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="text-muted">
+                                        <small th:text="${#numbers.formatDecimal(document.fileSize / 1024, 0, 0)} + ' KB'"></small>
+                                    </div>
+                                    <div class="text-muted">
+                                        <small th:text="${#temporals.format(document.uploadDate, 'MMM dd, yyyy')}"></small>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div th:if="${fundRequest.documents == null or fundRequest.documents.empty}" class="empty-state mb-4">
+                    <i class="fas fa-file-upload"></i>
+                    <h6>No Documents Uploaded</h6>
+                    <p>No documents have been uploaded for this fund request.</p>
+                </div>
+
+                <!-- Participants -->
+                <!-- <div class="section-header" th:if="${fundRequest.participants != null and !fundRequest.participants.empty}">
+                    <div class="section-icon"><i class="fas fa-users"></i></div>
+                    <h5 class="section-title">Participants</h5>
+                </div>
+
+                <div class="row g-4 mb-4" th:if="${fundRequest.participants != null and !fundRequest.participants.empty}">
+                    <div class="col-12">
+                        <ul class="participant-list">
+                            <li class="participant-item" th:each="participant : ${fundRequest.participants}">
+                                <div class="participant-name" th:text="${participant.participantName}"></div>
+                                <div class="participant-details">
+                                    <span th:if="${participant.participantCid}" th:text="'CID: ' + ${participant.participantCid}"></span>
+                                    <span th:if="${participant.contactNumber}" th:text="' | Contact: ' + ${participant.contactNumber}"></span>
+                                    <span th:if="${participant.emailAddress}" th:text="' | Email: ' + ${participant.emailAddress}"></span>
+                                    <span th:if="${participant.roleDesignation}" th:text="' | Role: ' + ${participant.roleDesignation}"></span>
+                                    <span th:if="${participant.collegeDepartment}" th:text="' | Department: ' + ${participant.collegeDepartment}"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div th:if="${fundRequest.participants == null or fundRequest.participants.empty}" class="empty-state mb-4">
+                    <i class="fas fa-users"></i>
+                    <h6>No Participants Added</h6>
+                    <p>No participants have been added to this fund request.</p>
+                </div> -->
+
+                <!-- Workflow Timeline -->
+                <div class="section-header">
+                    <div class="section-icon"><i class="fas fa-history"></i></div>
+                    <h5 class="section-title">Workflow Timeline</h5>
+                </div>
+
+                <div class="timeline">
+                    <!-- Request Submission -->
+                    <div class="timeline-item completed">
+                        <div class="timeline-content completed">
+                            <div class="timeline-title">Request Submitted</div>
+                            <div class="timeline-date" th:text="${#temporals.format(fundRequest.requestDate, 'MMM dd, yyyy hh:mm a')}"></div>
+                            <div class="timeline-description">
+                                Fund request submitted by <strong th:text="${fundRequest.requestedByName}"></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Focal Verification -->
+                    <div th:if="${fundRequest.focalVerificationDate != null}" 
+                         th:class="'timeline-item ' + ${fundRequest.fundRequestStatus == 'FOCAL_REJECTED' ? 'rejected' : 'completed'}">
+                        <div th:class="'timeline-content ' + ${fundRequest.fundRequestStatus == 'FOCAL_REJECTED' ? 'rejected' : 'completed'}">
+                            <div class="timeline-title" th:text="${fundRequest.fundRequestStatus == 'FOCAL_REJECTED' ? 'Focal Rejection' : 'Focal Verification'}"></div>
+                            <div class="timeline-date" th:text="${#temporals.format(fundRequest.focalVerificationDate, 'MMM dd, yyyy hh:mm a')}"></div>
+                            <div class="timeline-description" th:if="${fundRequest.focalVerifiedByName}">
+                                Verified by <strong th:text="${fundRequest.focalVerifiedByName}"></strong>
+                            </div>
+                            <div class="timeline-description" th:if="${fundRequest.focalRemarks}">
+                                <em th:text="${fundRequest.focalRemarks}"></em>
+                            </div>
+                            <div class="timeline-description" th:if="${fundRequest.approvedAmount != null}">
+                                Approved Amount: <strong th:text="${#numbers.formatDecimal(fundRequest.approvedAmount, 0, 2)} + ' Nu.'"></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chief Approval -->
+                    <div th:if="${fundRequest.chiefApprovalDate != null}" 
+                         th:class="'timeline-item ' + ${fundRequest.fundRequestStatus == 'CHIEF_REJECTED' ? 'rejected' : 'completed'}">
+                        <div th:class="'timeline-content ' + ${fundRequest.fundRequestStatus == 'CHIEF_REJECTED' ? 'rejected' : 'completed'}">
+                            <div class="timeline-title" th:text="${fundRequest.fundRequestStatus == 'CHIEF_REJECTED' ? 'Chief Rejection' : 'Chief Approval'}"></div>
+                            <div class="timeline-date" th:text="${#temporals.format(fundRequest.chiefApprovalDate, 'MMM dd, yyyy hh:mm a')}"></div>
+                            <div class="timeline-description" th:if="${fundRequest.chiefApprovedByName}">
+                                Approved by <strong th:text="${fundRequest.chiefApprovedByName}"></strong>
+                            </div>
+                            <div class="timeline-description" th:if="${fundRequest.chiefRemarks}">
+                                <em th:text="${fundRequest.chiefRemarks}"></em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accountant Approval -->
+                    <div th:if="${fundRequest.accountantApprovalDate != null}" 
+                         th:class="'timeline-item ' + ${fundRequest.fundRequestStatus == 'ACCOUNTANT_REJECTED' ? 'rejected' : 'completed'}">
+                        <div th:class="'timeline-content ' + ${fundRequest.fundRequestStatus == 'ACCOUNTANT_REJECTED' ? 'rejected' : 'completed'}">
+                            <div class="timeline-title" th:text="${fundRequest.fundRequestStatus == 'ACCOUNTANT_REJECTED' ? 'Accountant Rejection' : 'Accountant Approval'}"></div>
+                            <div class="timeline-date" th:text="${#temporals.format(fundRequest.accountantApprovalDate, 'MMM dd, yyyy hh:mm a')}"></div>
+                            <div class="timeline-description" th:if="${fundRequest.accountantApprovedByName}">
+                                Approved by <strong th:text="${fundRequest.accountantApprovedByName}"></strong>
+                            </div>
+                            <div class="timeline-description" th:if="${fundRequest.accountantRemarks}">
+                                <em th:text="${fundRequest.accountantRemarks}"></em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fund Request Not Found -->
+        <div class="card card-custom" th:if="${fundRequest == null}">
+            <div class="card-body-custom text-center py-5">
+                <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                <h5>Fund Request Not Found</h5>
+                <p class="text-muted">The requested fund request could not be found.</p>
+                <a href="/bsa-fund-request/list" class="btn btn-primary-custom">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Any additional JavaScript functionality can be added here
+    });
+</script>
+</body>
+</html>

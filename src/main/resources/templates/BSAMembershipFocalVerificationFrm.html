@@ -319,7 +319,7 @@
         <!-- Main Content -->
         <div id="content">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <!-- <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="mb-1">
                         <i class="fas fa-user-shield me-2"></i>
@@ -332,51 +332,44 @@
                         <i class="fas fa-sync-alt me-2"></i>Refresh
                     </button>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Alert Container -->
             <div id="alertContainer"></div>
             <!-- Approved Requests Table -->
-            <div class="card card-custom">
-                <div class="card-header card-header-custom">
-                    <h5 class="mb-0">
-                        <i class="fas fa-search me-2"></i>
-                        President/BSA Vice President has Approved Requests for Verification
-                    </h5>
-                </div>
-                <div class="card-body card-body-custom">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-custom">
-                            <thead>
-                                <tr>
-                                    <th>Request ID</th>
-                                    <th>Student Name</th>
-                                    <th>CID</th>
-                                    <th>BSA</th>
-                                    <th>Funding Type</th>
-                                    <th>VP Approval</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="approvedRequestsTable">
-                                <!-- Data will be populated here -->
-                            </tbody>
-                        </table>
-                        <div id="noApprovedRequests" class="text-center text-muted py-4" style="display: none;">
-                            <i class="fas fa-check-circle fa-2x mb-3"></i>
-                            <p>No requests awaiting verification.</p>
-                        </div>
-                    </div>
-
-                    <!-- Pagination -->
-                    <nav aria-label="Page navigation" class="mt-3">
-                        <ul class="pagination pagination-custom" id="pagination">
-                            <!-- Pagination will be populated here -->
-                        </ul>
-                    </nav>
+            <div class="container-fluid p-2 bg-body-secondary">BSA Membership Requests for Verification</div>
+            
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Student Name</th>
+                            <th>CID</th>
+                            <th>BSA</th>
+                            <th>Funding Type</th>
+                            <th>VP Approval</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvedRequestsTable">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+                <div id="noApprovedRequests" style="display: none;">
+                    <tr>
+                        <td colspan="8" class="text-center">No requests awaiting verification.</td>
+                    </tr>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-3">
+                <ul class="pagination" id="pagination">
+                    <!-- Pagination will be populated here -->
+                </ul>
+            </nav>
         </div>
     </div>
 
@@ -550,11 +543,9 @@
             tableBody.empty();
             
             if (requests.length === 0) {
-                noDataMessage.show();
+                tableBody.html('<tr><td colspan="8" class="text-center">No requests awaiting verification.</td></tr>');
                 return;
             }
-            
-            noDataMessage.hide();
             
             requests.forEach(function(request) {
                 const statusClass = getStatusClass(request.membershipStatus);
@@ -565,19 +556,16 @@
                         <td>${request.studentCid}</td>
                         <td>${request.bsaName}</td>
                         <td>${request.fundingType}</td>
+                        <td>${request.vpApprovedBy ? request.vpApprovedBy : 'N/A'}</td>
                         <td>
-                            <small class="text-muted">
-                                ${request.vpApprovedBy ? request.vpApprovedBy : 'N/A'}<br>
-                                ${request.vpApprovalDate ? formatDate(request.vpApprovalDate) : 'N/A'}
-                            </small>
+                            <span class="status-badge ${statusClass}">${request.membershipStatus}</span>
                         </td>
-                        <td><span class="status-badge ${statusClass}">${request.membershipStatus}</span></td>
-                        <td>
-                            <a href="/bsa-membership/focal-view?id=${request.membershipId}" class="btn btn-sm btn-view me-1">
-                                <i class="fas fa-eye"></i> View
+                        <td class="action-buttons" style="display: flex;">
+                            <a href="/bsa-membership/focal-view?id=${request.membershipId}" class="btn btn-primary btn-sm" title="View Details">
+                                View
                             </a>
-                            <a href="/bsa-membership/focal-verify?id=${request.membershipId}" class="btn btn-sm btn-verify">
-                                <i class="fas fa-shield-alt"></i> Verify
+                            <a href="/bsa-membership/focal-verify?id=${request.membershipId}" class="btn btn-success btn-sm" title="Verify Request">
+                                Verify
                             </a>
                         </td>
                     </tr>
@@ -598,8 +586,8 @@
             // Previous button
             const prevDisabled = response.first ? 'disabled' : '';
             pagination.append(`
-                <li class="page-item page-item-custom ${prevDisabled}">
-                    <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${currentPage - 1}); return false;">
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" onclick="loadApprovedRequests(${currentPage - 1}); return false;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 </li>
@@ -609,8 +597,8 @@
             for (let i = 0; i < totalPages; i++) {
                 const active = i === currentPage ? 'active' : '';
                 pagination.append(`
-                    <li class="page-item page-item-custom ${active}">
-                        <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${i}); return false;">
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" onclick="loadApprovedRequests(${i}); return false;">
                             ${i + 1}
                         </a>
                     </li>
@@ -620,8 +608,8 @@
             // Next button
             const nextDisabled = response.last ? 'disabled' : '';
             pagination.append(`
-                <li class="page-item page-item-custom ${nextDisabled}">
-                    <a class="page-link page-link-custom" href="#" onclick="loadApprovedRequests(${currentPage + 1}); return false;">
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" onclick="loadApprovedRequests(${currentPage + 1}); return false;">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>

@@ -515,7 +515,7 @@
         <div id="alertContainer"></div>
 
         <!-- Header -->
-        <div class="page-header">
+        <!-- <div class="page-header">
             <div class="page-title">
                 <h2><i class="fas fa-user-check me-3" style="color: var(--primary-color);"></i>Membership Approval</h2>
                 <p>Review and manage pending BSA membership requests</p>
@@ -525,47 +525,43 @@
                     <i class="fas fa-sync-alt me-2"></i>Refresh
                 </button>
             </div>
-        </div>
+        </div> -->
 
         <!-- Table Section -->
-        <div class="table-card">
-            <div class="card-header">
-                <h5><i class="fas fa-list-ul card-header-icon"></i> Pending Requests</h5>
-                <!-- Could add filters here in future -->
-            </div>
+        <div class="container-fluid p-2 bg-body-secondary">Pending BSA Membership Requests</div>
+        
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Student Name</th>
+                        <th>CID</th>
+                        <th>BSA</th>
+                        <th>Funding Type</th>
+                        <th>Request Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingRequestsTable">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
             
-            <div class="table-responsive">
-                <table class="table table-hover table-custom">
-                    <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Student Name</th>
-                            <th>CID</th>
-                            <th>BSA</th>
-                            <th>Funding Type</th>
-                            <th>Request Date</th>
-                            <th>Status</th>
-                            <th style="text-align: right;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingRequestsTable">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-                
-                <div id="noPendingRequests" class="empty-state" style="display: none;">
-                    <i class="fas fa-inbox"></i>
-                    <p>No pending membership requests found.</p>
-                </div>
+            <div id="noPendingRequests" style="display: none;">
+                <tr>
+                    <td colspan="8" class="text-center">No pending membership requests found.</td>
+                </tr>
             </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-custom" id="pagination">
-                    <!-- Pagination will be populated here -->
-                </ul>
-            </nav>
         </div>
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="pagination">
+                <!-- Pagination will be populated here -->
+            </ul>
+        </nav>
     </div>
 
     <!-- Approval Modal -->
@@ -709,28 +705,28 @@
             tableBody.empty();
             
             if (requests.length === 0) {
-                noDataMessage.show();
+                tableBody.html('<tr><td colspan="8" class="text-center">No pending membership requests found.</td></tr>');
                 return;
             }
-            
-            noDataMessage.hide();
             
             requests.forEach(function(request) {
                 const statusClass = getStatusClass(request.membershipStatus);
                 const row = `
                     <tr>
-                        <td class="fw-semibold text-muted">#${request.membershipId}</td>
-                        <td class="fw-medium">${request.studentName}</td>
+                        <td>${request.membershipId}</td>
+                        <td>${request.studentName}</td>
                         <td>${request.studentCid}</td>
-                        <td><span class="badge bg-light text-dark border">${request.bsaName}</span></td>
+                        <td>${request.bsaName}</td>
                         <td>${request.fundingType}</td>
-                        <td class="text-muted">${formatDate(request.membershipRequestDate)}</td>
-                        <td><span class="status-badge ${statusClass}">${request.membershipStatus}</span></td>
-                        <td style="display: flex;">
-                            <a href="/bsa-membership/view?id=${request.membershipId}" class="btn btn-action btn-view me-1">
+                        <td>${formatDate(request.membershipRequestDate)}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${request.membershipStatus}</span>
+                        </td>
+                        <td class="action-buttons" style="display: flex;">
+                            <a href="/bsa-membership/view?id=${request.membershipId}" class="btn btn-primary btn-sm" title="View Details">
                                 View
                             </a>
-                            <a href="/bsa-membership/approve?id=${request.membershipId}" class="btn btn-action btn-approve">
+                            <a href="/bsa-membership/approve?id=${request.membershipId}" class="btn btn-success btn-sm" title="Approve/Reject">
                                 Approve
                             </a>
                         </td>
@@ -752,8 +748,8 @@
             // Previous button
             const prevDisabled = response.first ? 'disabled' : '';
             pagination.append(`
-                <li class="page-item page-item-custom ${prevDisabled}">
-                    <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${currentPage - 1}); return false;">
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" href="#" onclick="loadPendingRequests(${currentPage - 1}); return false;">
                         <i class="fas fa-chevron-left"></i>
                     </a>
                 </li>
@@ -763,8 +759,8 @@
             for (let i = 0; i < totalPages; i++) {
                 const active = i === currentPage ? 'active' : '';
                 pagination.append(`
-                    <li class="page-item page-item-custom ${active}">
-                        <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${i}); return false;">
+                    <li class="page-item ${active}">
+                        <a class="page-link" href="#" onclick="loadPendingRequests(${i}); return false;">
                             ${i + 1}
                         </a>
                     </li>
@@ -774,8 +770,8 @@
             // Next button
             const nextDisabled = response.last ? 'disabled' : '';
             pagination.append(`
-                <li class="page-item page-item-custom ${nextDisabled}">
-                    <a class="page-link page-link-custom" href="#" onclick="loadPendingRequests(${currentPage + 1}); return false;">
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" href="#" onclick="loadPendingRequests(${currentPage + 1}); return false;">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>

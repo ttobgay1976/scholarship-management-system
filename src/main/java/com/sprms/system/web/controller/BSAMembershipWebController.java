@@ -27,13 +27,13 @@ public class BSAMembershipWebController {
     @GetMapping("/request")
     public String showMembershipRequestPage(Model model) {
         // Add any model attributes needed for the page
-        model.addAttribute("pageTitle", "BSA Membership Registration");
+        model.addAttribute("pageTitle", "BSA Membership Request");
         
         // Load active BSA list from database
         List<BSA> activeBSAs = bsaRegistrationRepository.findByStatus(BSAStatus.ACTIVE);
         model.addAttribute("activeBSAs", activeBSAs);
         
-        return "BSAMembershipRegistrationFrm";
+        return "BSAMembershipRequestFrm";
     }
 
     // Display membership request view page

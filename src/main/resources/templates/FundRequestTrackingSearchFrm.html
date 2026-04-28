@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Request Tracking - SPRMS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Quick Stats */
+        .quick-stat-card {
+            border: none;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .quick-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Search Button */
+        .btn-search {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-search:hover {
+            background: linear-gradient(135deg, #0056b3, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+
+        /* Recent Searches */
+        .recent-search-item {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .recent-search-item:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            #content {
+                padding: 15px;
+            }
+            
+            .card-body-custom {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div id="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-dollar-sign me-2"></i>
+                        Fund Request Tracking
+                    </h2>
+                    <p class="text-muted mb-0">Search and track fund request status</p>
+                </div>
+                <!-- <div>
+                    <a href="/status-tracking" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div> -->
+            </div>
+
+            <!-- Quick Statistics -->
+            <!-- <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-warning text-white" onclick="quickSearch('PENDING')">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <h4 id="pendingCount">0</h4>
+                        <p class="mb-0">Pending</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-info text-white" onclick="quickSearch('VERIFIED')">
+                        <i class="fas fa-user-check fa-2x mb-2"></i>
+                        <h4 id="verifiedCount">0</h4>
+                        <p class="mb-0">Verified</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-success text-white" onclick="quickSearch('CHIEF_APPROVED')">
+                        <i class="fas fa-user-tie fa-2x mb-2"></i>
+                        <h4 id="chiefApprovedCount">0</h4>
+                        <p class="mb-0">Chief Approved</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="quick-stat-card bg-primary text-white" onclick="quickSearch('ACCOUNTANT_APPROVED')">
+                        <i class="fas fa-calculator fa-2x mb-2"></i>
+                        <h4 id="accountantApprovedCount">0</h4>
+                        <p class="mb-0">Accountant Approved</p>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Search Form -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Search Fund Requests
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <form method="post" action="/fund-request-tracking/search" id="fundRequestSearchForm">
+                        <div class="row g-3">
+                            <!-- Reference Number Search -->
+                            <div class="col-md-12">
+                                <h6 class="text-muted mb-3">Search by Reference Number</h6>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Reference Number</label>
+                                <input type="text" class="form-control" id="referenceNumber" name="referenceNumber" placeholder="Enter fund request reference number" required>
+                                <small class="text-muted">Enter reference number provided when you submitted your fund request</small>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-search text-white w-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                            
+                            <!-- Advanced Search -->
+                            <!-- <div class="col-md-12 mt-4">
+                                <h6 class="text-muted mb-3">Advanced Filters</h6>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Request Status</label>
+                                <select class="form-select" id="fundRequestStatus">
+                                    <option value="">All Status</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="VERIFIED">Verified</option>
+                                    <option value="CHIEF_APPROVED">Chief Approved</option>
+                                    <option value="ACCOUNTANT_APPROVED">Accountant Approved</option>
+                                    <option value="REJECTED">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Request Type</label>
+                                <select class="form-select" id="requestType">
+                                    <option value="">All Types</option>
+                                    <option value="TUITION">Tuition Fee</option>
+                                    <option value="STIPEND">Stipend</option>
+                                    <option value="BOOK_ALLOWANCE">Book Allowance</option>
+                                    <option value="TRAVEL">Travel Expense</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Amount Range</label>
+                                <select class="form-select" id="amountRange">
+                                    <option value="">All Amounts</option>
+                                    <option value="0-1000">Up to $1,000</option>
+                                    <option value="1000-5000">$1,000 - $5,000</option>
+                                    <option value="5000-10000">$5,000 - $10,000</option>
+                                    <option value="10000+">Above $10,000</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="priority">
+                                    <option value="">All Priorities</option>
+                                    <option value="HIGH">High</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="LOW">Low</option>
+                                </select>
+                            </div> -->
+                            
+                            <!-- Date and Additional Filters -->
+                            <!-- <div class="col-md-12 mt-4">
+                                <h6 class="text-muted mb-3">Date and Additional Filters</h6>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="datetime-local" class="form-control" id="startDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">End Date</label>
+                                <input type="datetime-local" class="form-control" id="endDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">User ID</label>
+                                <input type="number" class="form-control" id="userId" placeholder="Enter User ID">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Results Per Page</label>
+                                <select class="form-select" id="pageSize">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div> -->
+                            
+                            <!-- Financial Filters -->
+                            <!-- <div class="col-md-12 mt-4">
+                                <h6 class="text-muted mb-3">Financial Filters</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Min Amount</label>
+                                <input type="number" class="form-control" id="minAmount" placeholder="Enter minimum amount">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Max Amount</label>
+                                <input type="number" class="form-control" id="maxAmount" placeholder="Enter maximum amount">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Purpose</label>
+                                <input type="text" class="form-control" id="purpose" placeholder="Enter purpose keywords">
+                            </div> -->
+                        </div>
+                        
+                        <!-- Search Buttons -->
+                        <!-- <div class="row mt-4">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-search text-white me-2">
+                                    <i class="fas fa-search me-2"></i>Search Fund Requests
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearForm()">
+                                    <i class="fas fa-times me-2"></i>Clear Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-info" onclick="advancedSearch()">
+                                    <i class="fas fa-cog me-2"></i>Advanced Search
+                                </button>
+                            </div>
+                        </div> -->
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Searches -->
+            <!-- <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Searches
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div id="recentSearches">
+                        <div class="text-muted text-center">No recent searches</div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Loading Spinner -->
+            <!-- <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Searching...</span>
+                </div>
+                <p class="mt-2">Searching fund requests...</p>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardStats();
+            loadRecentSearches();
+        });
+
+        // Load dashboard statistics
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/status-tracking/dashboard/stats');
+                const stats = await response.json();
+                
+                document.getElementById('pendingCount').textContent = stats.pendingFundRequests || 0;
+                document.getElementById('verifiedCount').textContent = stats.verifiedFundRequests || 0;
+                document.getElementById('chiefApprovedCount').textContent = stats.chiefApprovedFundRequests || 0;
+                document.getElementById('accountantApprovedCount').textContent = stats.accountantApprovedFundRequests || 0;
+            } catch (error) {
+                console.error('Error loading dashboard stats:', error);
+            }
+        }
+
+        // Form submission - simple submit to backend
+        document.getElementById('fundRequestSearchForm').addEventListener('submit', function(e) {
+            // Allow normal form submission
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Searching...';
+                submitBtn.disabled = true;
+            }
+        });
+
+        // Get search parameters from form
+        function getSearchParams() {
+            const referenceNumber = document.getElementById('referenceNumber');
+            return {
+                referenceNumber: referenceNumber ? referenceNumber.value : '',
+                page: 0
+            };
+        }
+
+        // Simple initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on reference number field
+            const referenceNumberField = document.getElementById('referenceNumber');
+            if (referenceNumberField) {
+                referenceNumberField.focus();
+            }
+        });
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('fundRequestSearchForm').reset();
+        }
+
+        // Advanced search (placeholder for future enhancement)
+        function advancedSearch() {
+            alert('Advanced search features coming soon!');
+        }
+
+        // Save recent search
+        function saveRecentSearch(searchParams) {
+            const recentSearches = JSON.parse(localStorage.getItem('fundRequestRecentSearches') || '[]');
+            
+            // Create search description
+            const description = createSearchDescription(searchParams);
+            
+            // Add to recent searches (max 5)
+            const newSearch = {
+                description: description,
+                params: searchParams,
+                timestamp: new Date().toISOString()
+            };
+            
+            recentSearches.unshift(newSearch);
+            if (recentSearches.length > 5) {
+                recentSearches.pop();
+            }
+            
+            localStorage.setItem('fundRequestRecentSearches', JSON.stringify(recentSearches));
+            loadRecentSearches();
+        }
+
+        // Create search description
+        function createSearchDescription(searchParams) {
+            const parts = [];
+            
+            if (searchParams.requestId) parts.push(`Request ID: ${searchParams.requestId}`);
+            if (searchParams.studentName) parts.push(`Student: ${searchParams.studentName}`);
+            if (searchParams.studentCid) parts.push(`CID: ${searchParams.studentCid}`);
+            if (searchParams.fundRequestStatus) parts.push(`Status: ${searchParams.fundRequestStatus}`);
+            if (searchParams.requestType) parts.push(`Type: ${searchParams.requestType}`);
+            if (searchParams.amountRange) parts.push(`Amount: ${searchParams.amountRange}`);
+            if (searchParams.priority) parts.push(`Priority: ${searchParams.priority}`);
+            if (searchParams.startDate || searchParams.endDate) parts.push('Date Range');
+            if (searchParams.userId) parts.push(`User ID: ${searchParams.userId}`);
+            if (searchParams.minAmount || searchParams.maxAmount) parts.push('Amount Range');
+            if (searchParams.purpose) parts.push(`Purpose: ${searchParams.purpose}`);
+            
+            return parts.length > 0 ? parts.join(', ') : 'All Fund Requests';
+        }
+
+        // Load recent searches
+        function loadRecentSearches() {
+            const recentSearches = JSON.parse(localStorage.getItem('fundRequestRecentSearches') || '[]');
+            const container = document.getElementById('recentSearches');
+            
+            if (recentSearches.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center">No recent searches</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            recentSearches.forEach((search, index) => {
+                const searchItem = document.createElement('div');
+                searchItem.className = 'recent-search-item';
+                searchItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-search text-muted me-2"></i>
+                            <span>${search.description}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted">${formatTime(search.timestamp)}</small>
+                            <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeRecentSearch(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                searchItem.onclick = function(e) {
+                    if (!e.target.closest('button')) {
+                        applyRecentSearch(search.params);
+                    }
+                };
+                container.appendChild(searchItem);
+            });
+        }
+
+        // Apply recent search
+        function applyRecentSearch(searchParams) {
+            // Fill form with search parameters
+            Object.keys(searchParams).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = searchParams[key];
+                }
+            });
+            
+            // Perform search
+            performSearch();
+        }
+
+        // Remove recent search
+        function removeRecentSearch(index) {
+            const recentSearches = JSON.parse(localStorage.getItem('fundRequestRecentSearches') || '[]');
+            recentSearches.splice(index, 1);
+            localStorage.setItem('fundRequestRecentSearches', JSON.stringify(recentSearches));
+            loadRecentSearches();
+        }
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString();
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>

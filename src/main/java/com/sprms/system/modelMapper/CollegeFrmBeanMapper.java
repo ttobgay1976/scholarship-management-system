@@ -11,14 +11,19 @@ import com.sprms.system.hbmbeans.College;
 @Mapper(componentModel = "spring")
 public interface CollegeFrmBeanMapper {
 
+    // Map entity → FormBean
+    @Mapping(target = "countryId", source = "country.id")
+    @Mapping(target = "stateId", source = "state.id")
+    @Mapping(target = "cityId", source = "city.id")
+    CollegeFrmBean toFrmBean(College entity);
 
-	    // Map entity → FormBean
-//	    @Mapping(target = "stateName", source = "state.stateName")
-	    CollegeFrmBean toFrmBean(College entity);
-
-	    // Map FormBean → entity
-//	    @Mapping(target = "state", ignore = true) // map separately if needed
-	    College toEntity(CollegeFrmBean collegeFrmBean);
+    // Map FormBean → entity
+    @Mapping(target = "country", ignore = true)
+    @Mapping(target = "state", ignore = true)
+    @Mapping(target = "city", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedDate", ignore = true)
+    College toEntity(CollegeFrmBean collegeFrmBean);
 
 	    
 		

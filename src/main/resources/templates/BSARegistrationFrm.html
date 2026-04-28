@@ -351,28 +351,34 @@
 
                         <div class="col-md-4">
                             <label for="stateSelect" class="form-label required">State/Province</label>
-                            <select class="form-select" id="stateSelect" th:field="*{stateId}" required disabled>
+                            <select class="form-select" id="stateSelect" th:field="*{stateId}" required>
                                 <option value="" selected disabled>-- Select State --</option>
+                                <!-- Pre-loaded states for edit mode -->
+                                <option th:if="${lststate}" th:each="state : ${lststate}" th:value="${state.id}"
+                                        th:text="${state.stateName}"></option>
                             </select>
                             <div class="form-text" id="stateLoader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
                         </div>
 
                         <div class="col-md-4">
                             <label for="citySelect" class="form-label required">City</label>
-                            <select class="form-select" id="citySelect" th:field="*{cityId}" required disabled>
+                            <select class="form-select" id="citySelect" th:field="*{cityId}" required>
                                 <option value="" selected disabled>-- Select City --</option>
+                                <!-- Pre-loaded cities for edit mode -->
+                                <option th:if="${lstcity}" th:each="city : ${lstcity}" th:value="${city.id}"
+                                        th:text="${city.cityName}"></option>
                             </select>
                             <div class="form-text" id="cityLoader" style="display:none;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
                         </div>
 
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
                             <label for="instituteSelect" class="form-label">Institute (Optional)</label>
                             <select class="form-select" id="instituteSelect" th:field="*{instituteId}">
                                 <option value="" selected>-- Select Institute --</option>
                                 <option th:if="${lstcollege}" th:each="college : ${lstcollege}" th:value="${college.id}"
                                         th:text="${college.collegeName}"></option>
                             </select>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="col-12">
@@ -403,9 +409,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     $(document).ready(function() {
         function showToast(message, type) {
@@ -425,22 +428,28 @@
                 setTimeout(() => $toast.remove(), 300);
             }, 3000);
         }
+        
         let initialSavedState = $('#stateSelect').val();
         let initialSavedCity = $('#citySelect').val();
         
         const isEdit = window.location.href.indexOf('edit') > -1; 
-        if(isEdit && $('#bsaCode').val() === '') {
-            $('#bsaCode').val('BSA-BH-001');
-            $('#bsaName').val('Royal Thimphu College Student Association');
-            $('#description').val('Representing students of RTC in Thimphu.');
-            $('#status').val('ACTIVE');
-            $('#countrySelect').val('1');
+        if(isEdit) {
+            // For edit mode, the states and cities are pre-loaded via Thymeleaf
+            // No need to trigger AJAX calls, just get the saved values
+            initialSavedState = $('#stateSelect').val();
+            initialSavedCity = $('#citySelect').val();
             
-            initialSavedState = '101'; 
-            initialSavedCity = '202';
+            // Enable the selects since they're pre-loaded
+            $('#stateSelect').prop('disabled', false);
+            $('#citySelect').prop('disabled', false);
         }
 
         $('#countrySelect').change(function() {
+            // Skip AJAX calls in edit mode since data is pre-loaded
+            if (isEdit) {
+                return;
+            }
+            
             const countryId = $(this).val();
             const $stateSelect = $('#stateSelect');
             const $citySelect = $('#citySelect');
@@ -478,6 +487,11 @@
         });
 
         $('#stateSelect').change(function() {
+            // Skip AJAX calls in edit mode since data is pre-loaded
+            if (isEdit) {
+                return;
+            }
+            
             const stateId = $(this).val();
             const countryId = $('#countrySelect').val();
             const $citySelect = $('#citySelect');
@@ -512,9 +526,12 @@
             }
         });
 
-        const initialCountry = $('#countrySelect').val();
-        if (initialCountry) {
-            $('#countrySelect').trigger('change'); 
+        // Only trigger country change for new mode
+        if (!isEdit) {
+            const initialCountry = $('#countrySelect').val();
+            if (initialCountry) {
+                $('#countrySelect').trigger('change'); 
+            }
         }
 
         $('#bsaForm').submit(function(e) {

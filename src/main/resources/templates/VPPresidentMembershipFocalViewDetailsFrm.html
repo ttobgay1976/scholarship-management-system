@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VP/President Membership Request Details</title>
+    
+    <!-- CSRF Meta Tags -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --secondary-bg: #f4f6f9;
+            --card-border: #e9ecef;
+            --text-main: #212529;
+            --text-muted: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --purple-color: #6f42c1;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Layout Structure */
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Main Content */
+        #content {
+            width: 100%;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        /* Card Styles */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--purple-color), #5a32a3);
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px 25px;
+            border: none;
+        }
+
+        .card-body-custom {
+            padding: 30px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        /* Position Badge */
+        .position-badge {
+            background: linear-gradient(135deg, #6f42c1, #5a32a3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .btn-back {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Document Section */
+        .document-section {
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .document-icon {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -34px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--purple-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="spinner-overlay" id="loadingSpinner">
+        <div class="spinner-border text-purple" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">VP/President Membership Request Details</h2>
+                    <p class="text-muted">View and review membership request information</p>
+                </div>
+                <!-- <a href="/vp-president-membership/focal-verification" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Verification List
+                </a> -->
+            </div>
+
+            <!-- Request Details Card -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-shield me-2"></i>
+                        Request Information
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Request ID</div>
+                                <div class="info-value" id="requestId">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Request Status</div>
+                                <div class="info-value">
+                                    <span class="status-badge" id="requestStatus">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Requester Name</div>
+                                <div class="info-value" id="requesterName">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">CID Number</div>
+                                <div class="info-value" id="requesterCid">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Requested Position</div>
+                                <div class="info-value">
+                                    <span class="position-badge" id="requestedPosition">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">BSA</div>
+                                <div class="info-value" id="bsaName">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Request Date</div>
+                                <div class="info-value" id="requestDate">-</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <div class="info-label">Last Updated</div>
+                                <div class="info-value" id="lastUpdated">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Request Details
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="info-label">Request Reason</div>
+                            <div class="info-value" id="requestReason" style="white-space: pre-wrap;">-</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="info-label">Experience Details</div>
+                            <div class="info-value" id="experienceDetails" style="white-space: pre-wrap;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supporting Documents -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-paperclip me-2"></i>
+                        Supporting Documents
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div id="documentsSection">
+                        <div class="document-section">
+                            <i class="fas fa-file-pdf document-icon"></i>
+                            <p class="text-muted">No supporting documents available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification History -->
+            <div class="card card-custom">
+                <div class="card-header card-header-custom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Verification History
+                    </h5>
+                </div>
+                <div class="card-body card-body-custom">
+                    <div id="verificationHistory">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="info-label">Request Submitted</div>
+                                <div class="info-value" id="submittedDate">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Get membership ID from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const membershipId = urlParams.get('id');
+
+        // Initialize page
+        $(document).ready(function() {
+            if (membershipId) {
+                loadMembershipDetails();
+            } else {
+                showAlert('No membership ID provided', 'danger');
+            }
+        });
+
+        // Load membership details
+        function loadMembershipDetails() {
+            showLoading();
+            
+            $.ajax({
+                url: `/api/vp-president-membership/${membershipId}`,
+                method: 'GET',
+                success: function(response) {
+                    console.log('Membership Response:', response);
+                    
+                    // The API returns wrapped response with success and membership fields
+                    if (!response || !response.success || !response.membership) {
+                        showAlert('No membership data found', 'danger');
+                        hideLoading();
+                        return;
+                    }
+                    
+                    const membership = response.membership;
+                    
+                    // Populate basic information
+                    $('#requestId').text(membership.vpPresidentMembershipId || '-');
+                    $('#requesterName').text(membership.requesterName || '-');
+                    $('#requesterCid').text(membership.requesterCid || '-');
+                    $('#requestedPosition').text(membership.requestedPosition || '-');
+                    $('#bsaName').text(membership.bsaName || '-');
+                    $('#requestDate').text(formatDate(membership.requestDate) || '-');
+                    $('#lastUpdated').text(formatDate(membership.lastUpdated) || '-');
+                    $('#requestReason').text(membership.requestReason || 'No reason provided');
+                    $('#experienceDetails').text(membership.experienceDetails || 'No experience details provided');
+                    
+                    // Set status badge
+                    const statusElement = $('#requestStatus');
+                    statusElement.text(membership.membershipStatus || 'PENDING');
+                    statusElement.removeClass('status-pending status-approved status-rejected');
+                    statusElement.addClass(getStatusClass(membership.membershipStatus));
+                    
+                    // Load documents if available
+                    loadDocuments(membership);
+                    
+                    // Load verification history
+                    loadVerificationHistory(membership);
+                    
+                    hideLoading();
+                },
+                error: function(xhr) {
+                    console.error('Error loading membership details:', xhr);
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : 'Error loading membership details';
+                    showAlert(errorMessage, 'danger');
+                    hideLoading();
+                }
+            });
+        }
+
+        // Load documents
+        function loadDocuments(membership) {
+            // Check if there are any documents
+            if (membership.documentPath) {
+                $('#documentsSection').html(`
+                    <div class="alert alert-info">
+                        <i class="fas fa-file-pdf me-2"></i>
+                        <strong>Supporting Document:</strong> 
+                        <a href="#" onclick="viewDocument('${membership.documentPath}')" class="text-decoration-none">
+                            View Document
+                        </a>
+                    </div>
+                `);
+            }
+        }
+
+        // Load verification history
+        function loadVerificationHistory(membership) {
+            let historyHtml = '<div class="timeline">';
+            
+            // Request submission
+            historyHtml += `
+                <div class="timeline-item">
+                    <div class="info-label">Request Submitted</div>
+                    <div class="info-value">${formatDate(membership.requestDate)}</div>
+                </div>
+            `;
+            
+            // Add verification steps if available
+            if (membership.membershipStatus !== 'PENDING') {
+                if (membership.verifierName) {
+                    historyHtml += `
+                        <div class="timeline-item">
+                            <div class="info-label">Focal Officer Verification</div>
+                            <div class="info-value">
+                                Verified by: ${membership.verifierName}<br>
+                                Status: ${membership.membershipStatus}<br>
+                                Date: ${formatDate(membership.verificationDate)}<br>
+                                Remarks: ${membership.verifierRemarks || 'No remarks provided'}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            historyHtml += '</div>';
+            $('#verificationHistory').html(historyHtml);
+        }
+
+        // View document
+        function viewDocument(documentPath) {
+            // Implement document viewing logic
+            showAlert('Document viewing functionality to be implemented', 'info');
+        }
+
+        // Get status class
+        function getStatusClass(status) {
+            switch(status) {
+                case 'PENDING': return 'status-pending';
+                case 'APPROVED': return 'status-approved';
+                case 'REJECTED': return 'status-rejected';
+                default: return 'status-pending';
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            $('#loadingSpinner').show();
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            $('#loadingSpinner').hide();
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alertHtml);
+        }
+    </script>
+</body>
+</html>

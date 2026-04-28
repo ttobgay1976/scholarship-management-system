@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<th:block
+	th:replace="~{fragments/commonresource_css :: common_resource_css}"></th:block>
+
+<style>
+    .status-badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75em;
+        font-weight: 600;
+        border-radius: 0.25rem;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-verified {
+        background-color: #e0f2fe;
+        color: #075985;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stats-card h5 {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .stats-card h3 {
+        margin: 5px 0 0 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .action-buttons .btn {
+        margin-right: 5px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .filter-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .filter-tab {
+        padding: 8px 16px;
+        border: 1px solid #dee2e6;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .filter-tab:hover {
+        background: #f8f9fa;
+    }
+    
+    .filter-tab.active {
+        background: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+    
+    .loading-spinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>
+
+</head>
+
+<body>
+	<section layout:fragment="content">
+
+		<div class="container-fluid p-2 bg-body-secondary">VP/President Membership Requests</div>
+
+		<!-- Filter Tabs -->
+		<!-- <div class="container-fluid mt-3">
+			<div class="filter-tabs">
+				<button class="filter-tab active" data-status="all" onclick="filterRequests('all')">
+					<i class="fas fa-list me-2"></i>All Requests
+				</button>
+				<button class="filter-tab" data-status="approved" onclick="filterRequests('approved')">
+					<i class="fas fa-check-circle me-2"></i>Approved
+				</button>
+				<button class="filter-tab" data-status="rejected" onclick="filterRequests('rejected')">
+					<i class="fas fa-times-circle me-2"></i>Rejected
+				</button>
+				<button class="filter-tab" data-status="pending" onclick="filterRequests('pending')">
+					<i class="fas fa-clock me-2"></i>Pending
+				</button>
+			</div>
+		</div> -->
+
+		<!-- Requests Table -->
+		<div class="container-fluid">
+			<table class="table table-bordered table-hover mt-3">
+				<thead class="table-dark">
+					<tr>
+						<th>Request ID</th>
+						<th>Requester Name</th>
+						<th>CID</th>
+						<th>Requested Position</th>
+						<th>BSA</th>
+						<th>Request Date</th>
+						<th>Status</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="requestsTableBody">
+					<tr id="noDataRow" style="display: none;">
+						<td colspan="8" class="text-center">No membership requests found.</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Loading Spinner -->
+		<div class="loading-spinner" id="loadingSpinner">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+		</div>
+
+	</section>
+
+    <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Global variables
+    let currentStatus = 'all';
+
+    // Initialize page
+    $(document).ready(function() {
+        loadRequests();
+    });
+
+    // Filter requests by status
+    function filterRequests(status) {
+        currentStatus = status;
+        
+        // Update active tab
+        $('.filter-tab').removeClass('active');
+        $(`.filter-tab[data-status="${status}"]`).addClass('active');
+        
+        loadRequests();
+    }
+
+    // Load requests
+    function loadRequests() {
+        showLoading();
+        
+        let url = '/api/vp-president-membership/all';
+        
+        // Add status filter if not 'all'
+        if (currentStatus !== 'all') {
+            url = `/api/vp-president-membership/by-status/${currentStatus}`;
+        }
+        
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+                renderRequests(response.content || response);
+                hideLoading();
+            },
+            error: function(xhr) {
+                console.error('Error loading requests:', xhr);
+                let errorMessage = 'Error loading requests';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                alert(errorMessage);
+                hideLoading();
+            }
+        });
+    }
+
+    // Render requests in table
+    function renderRequests(requests) {
+        const tableBody = $('#requestsTableBody');
+        const noDataRow = $('#noDataRow');
+        
+        tableBody.empty();
+        
+        if (!requests || requests.length === 0) {
+            noDataRow.show();
+            return;
+        }
+        
+        noDataRow.hide();
+        
+        requests.forEach(function(request) {
+            const statusClass = getStatusClass(request.membershipStatus);
+            const row = `
+                <tr>
+                    <td>${request.vpPresidentMembershipId}</td>
+                    <td>${request.requesterName || '-'}</td>
+                    <td>${request.requesterCid || '-'}</td>
+                    <td>${request.requestedPosition || '-'}</td>
+                    <td>${request.bsaName || '-'}</td>
+                    <td>${formatDate(request.requestDate)}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">${request.membershipStatus || 'UNKNOWN'}</span>
+                    </td>
+                    <td class="action-buttons" style="display: flex;">
+                        <a href="/vp-president-membership/focal-view?id=${request.vpPresidentMembershipId}"
+                           class="btn btn-primary btn-sm" title="View Details">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                    </td>
+                </tr>
+            `;
+            tableBody.append(row);
+        });
+    }
+
+    // Get status class
+    function getStatusClass(status) {
+        switch(status) {
+            case 'PENDING': return 'status-pending';
+            case 'APPROVED': return 'status-approved';
+            case 'REJECTED': return 'status-rejected';
+            case 'VERIFIED': return 'status-verified';
+            default: return 'status-pending';
+        }
+    }
+
+    // Format date
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Show loading spinner
+    function showLoading() {
+        $('#loadingSpinner').show();
+    }
+
+    // Hide loading spinner
+    function hideLoading() {
+        $('#loadingSpinner').hide();
+    }
+</script>
+</body>
+</html>

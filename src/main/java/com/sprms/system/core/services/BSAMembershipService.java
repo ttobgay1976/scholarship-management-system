@@ -36,12 +36,14 @@ public class BSAMembershipService {
     private final UserRepository _userRepository;
     private final BSARegistrationRepository _bsaRegistrationRepository;
     private final StudentRepository _studentRepository;
+    private final ReferenceNumberService referenceNumberService;
 
-    public BSAMembershipService(BSAMembershipRepository bsaMembershipRepository, UserRepository userRepository, BSARegistrationRepository bsaRegistrationRepository, StudentRepository studentRepository) {
+    public BSAMembershipService(BSAMembershipRepository bsaMembershipRepository, UserRepository userRepository, BSARegistrationRepository bsaRegistrationRepository, StudentRepository studentRepository, ReferenceNumberService referenceNumberService) {
         this._bsaMembershipRepository = bsaMembershipRepository;
         this._userRepository = userRepository;
         this._bsaRegistrationRepository = bsaRegistrationRepository;
         this._studentRepository = studentRepository;
+        this.referenceNumberService = referenceNumberService;
     }
 
     // Create new membership request
@@ -69,6 +71,7 @@ public class BSAMembershipService {
 
         // Create new membership request
         BSAMembership membership = new BSAMembership();
+        membership.setReferenceNumber(referenceNumberService.generateMembershipReferenceNumber());
         membership.setStudent(student);
         membership.setStudentCid(student.getCidno());
         membership.setStudentEmail(student.getUsername());
@@ -110,20 +113,71 @@ public class BSAMembershipService {
 
         // Create new membership request with manual data
         BSAMembership membership = new BSAMembership();
+        membership.setReferenceNumber(referenceNumberService.generateMembershipReferenceNumber());
         membership.setStudent(student);
         
-        // Use manual data if provided, otherwise fall back to user data
-        String studentCid = (String) studentData.get("studentCid");
-        membership.setStudentCid(studentCid != null && !studentCid.isEmpty() ? studentCid : student.getCidno());
-        
-        String studentName = (String) studentData.get("studentName");
-        membership.setStudentName(studentName != null && !studentName.isEmpty() ? studentName : student.getFirstname() + " " + student.getLastname());
-        
-        String emailAddress = (String) studentData.get("emailAddress");
-        membership.setStudentEmail(emailAddress != null && !emailAddress.isEmpty() ? emailAddress : student.getUsername());
-        
-        String collegeName = (String) studentData.get("collegeName");
-        membership.setCollege_Name(collegeName != null && !collegeName.isEmpty() ? collegeName : "");
+        // Handle different funding types
+        if (fundingType == FundingType.GOVERNMENT_FUNDED) {
+            // For scholarship students, use data from scholarship registration
+            String studentCid = (String) studentData.get("studentCid");
+            membership.setStudentCid(studentCid != null ? studentCid : student.getCidno());
+            
+            String studentName = (String) studentData.get("studentName");
+            membership.setStudentName(studentName != null ? studentName : student.getFirstname() + " " + student.getLastname());
+            
+            String emailAddress = (String) studentData.get("emailAddress");
+            
+            // For scholarship, email might come from scholarship data
+            membership.setStudentEmail(emailAddress != null && !emailAddress.isEmpty() ? emailAddress : student.getUsername());
+            
+            // College name for scholarship students
+            Long collegeId = null;
+            Object collegeIdObj = studentData.get("collegeId");
+            if (collegeIdObj != null) {
+                if (collegeIdObj instanceof String) {
+                    try {
+                        collegeId = Long.parseLong((String) collegeIdObj);
+                    } catch (NumberFormatException e) {
+                        logger.warn("Invalid collegeId format: {}", collegeIdObj);
+                        collegeId = null;
+                    }
+                } else if (collegeIdObj instanceof Long) {
+                    collegeId = (Long) collegeIdObj;
+                } else if (collegeIdObj instanceof Integer) {
+                    collegeId = ((Integer) collegeIdObj).longValue();
+                } else {
+                    logger.warn("Unexpected collegeId type: {} - value: {}", collegeIdObj.getClass().getName(), collegeIdObj);
+                    // Try to convert from string representation
+                    try {
+                        collegeId = Long.parseLong(collegeIdObj.toString());
+                    } catch (NumberFormatException e) {
+                        logger.warn("Failed to convert collegeId to Long: {}", collegeIdObj);
+                        collegeId = null;
+                    }
+                }
+            }
+            if (collegeId != null) {
+                // We could fetch college name by ID here if needed
+                membership.setCollege_Name("Scholarship College"); // Placeholder
+            } else {
+                // Ensure college name is never null since it's required in database
+                membership.setCollege_Name("Not Specified");
+            }
+            
+        } else if (fundingType == FundingType.PRIVATELY_FUNDED) {
+            // For private funded students, use manual data
+            String studentCid = (String) studentData.get("studentCid");
+            membership.setStudentCid(studentCid != null && !studentCid.isEmpty() ? studentCid : "Not Provided");
+            
+            String studentName = (String) studentData.get("studentName");
+            membership.setStudentName(studentName != null && !studentName.isEmpty() ? studentName : student.getFirstname() + " " + student.getLastname());
+            
+            String emailAddress = (String) studentData.get("emailAddress");
+            membership.setStudentEmail(emailAddress != null && !emailAddress.isEmpty() ? emailAddress : student.getUsername());
+            
+            String collegeName = (String) studentData.get("collegeName");
+            membership.setCollege_Name(collegeName != null && !collegeName.isEmpty() ? collegeName : "Not Specified");
+        }
         
         membership.setFundingType(fundingType);
         membership.setRequestedDate(LocalDateTime.now());
@@ -186,7 +240,17 @@ public class BSAMembershipService {
         membership.setUpdatedBy(username);
         membership.setUpdatedDate(LocalDateTime.now());
 
-        _bsaMembershipRepository.save(membership);
+        BSAMembership saved = _bsaMembershipRepository.save(membership);
+        
+        // Trigger notification for VP approval/rejection
+        // if (membership.getMembershipStatus() == MembershipStatus.APPROVED) {
+        //     notificationService.notifyMembershipVPApproval(saved);
+        // } else {
+        //     notificationService.notifyMembershipVPRejection(saved);
+        // }
+        
+        logger.info("Membership {} final status: {} by {}", 
+                membership.getMembershipId(), membership.getMembershipStatus(), username);
     }
 
     // Focal Officer verification action
@@ -233,7 +297,10 @@ public class BSAMembershipService {
             throw new RuntimeException("Membership ID cannot be null");
         }
 
-        _bsaMembershipRepository.save(membership);
+        BSAMembership saved = _bsaMembershipRepository.save(membership);
+        
+        // Trigger notification for focal verification
+        // notificationService.notifyMembershipFocalVerification(saved);
     }
 
     // Get membership by ID
@@ -251,26 +318,59 @@ public class BSAMembershipService {
 
     // Get all BSA memberships
     public Page<BSAMembershipDTO> getAllMemberships(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<BSAMembership> memberships = _bsaMembershipRepository.findAll(pageable);
-        return memberships.map(this::convertToDTO);
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<BSAMembership> memberships = _bsaMembershipRepository.findAll(pageable);
+            return memberships.map(this::convertToDTO);
+        } catch (Exception e) {
+            logger.error("Error getting all memberships: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to get memberships: " + e.getMessage());
+        }
     }
 
-    // Get membership statistics
+    // Get membership count by status
     public long getMembershipCountByStatus(MembershipStatus status) {
-        return _bsaMembershipRepository.countByMembershipStatus(status);
+        try {
+            return _bsaMembershipRepository.countByMembershipStatus(status);
+        } catch (Exception e) {
+            logger.error("Error counting membership requests by status: {}", e.getMessage(), e);
+            return 0;
+        }
+    }
+
+    // Get membership by reference number
+    public BSAMembershipDTO getMembershipByReferenceNumber(String referenceNumber) {
+        try {
+            System.out.println("DEBUG SERVICE: Searching for membership with reference number: " + referenceNumber);
+            logger.info("Searching for membership with reference number: {}", referenceNumber);
+            
+            BSAMembership membership = _bsaMembershipRepository.findByReferenceNumber(referenceNumber)
+                    .orElseThrow(() -> new RuntimeException("Membership not found with reference number: " + referenceNumber));
+            
+            System.out.println("DEBUG SERVICE: Found membership entity: " + membership.getMembershipId());
+            logger.info("Found membership: {} for reference number: {}", membership.getMembershipId(), referenceNumber);
+            
+            BSAMembershipDTO dto = convertToDTO(membership);
+            System.out.println("DEBUG SERVICE: Converted to DTO: " + dto.getMembershipId());
+            
+            return dto;
+            
+        } catch (Exception e) {
+            System.out.println("DEBUG SERVICE: Error: " + e.getMessage());
+            e.printStackTrace();
+            logger.error("Error getting membership by reference number {}: {}", referenceNumber, e.getMessage(), e);
+            throw new RuntimeException("Failed to get membership: " + e.getMessage());
+        }
     }
 
     // Convert entity to DTO
     private BSAMembershipDTO convertToDTO(BSAMembership membership) {
         BSAMembershipDTO dto = new BSAMembershipDTO();
         dto.setMembershipId(membership.getMembershipId());
-        dto.setBsaId(membership.getBsa().getBsaId());
-        dto.setBsaName(membership.getBsa().getBsaName());
-        dto.setBsaCode(membership.getBsa().getBsaCode());
         dto.setStudentId(membership.getStudent().getId());
-        dto.setStudentName(membership.getStudent().getFirstname() + " " + membership.getStudent().getLastname());
+        dto.setStudentName(membership.getStudentName());
         dto.setStudentCid(membership.getStudent().getCidno());
+        dto.setReferenceNumber(membership.getReferenceNumber());
         dto.setFundingType(membership.getFundingType());
         dto.setMembershipStatus(membership.getMembershipStatus());
         dto.setMembershipRequestDate(membership.getMembershipRequestDate());
@@ -283,6 +383,14 @@ public class BSAMembershipService {
                 membership.getFocalVerifiedBy().getFirstname() + " " + membership.getFocalVerifiedBy().getLastname() : null);
         dto.setFocalRemarks(membership.getFocalRemarks());
         dto.setCreatedDate(membership.getCreatedDate());
+        
+        // Set BSA details
+        if (membership.getBsa() != null) {
+            dto.setBsaId(membership.getBsa().getBsaId());
+            dto.setBsaName(membership.getBsa().getBsaName());
+            dto.setBsaCode(membership.getBsa().getBsaCode());
+        }
+        
         return dto;
     }
 }

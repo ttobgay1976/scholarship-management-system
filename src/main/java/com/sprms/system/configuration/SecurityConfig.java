@@ -25,11 +25,15 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-//         .csrf(csrf -> csrf.disable())
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers("/membership-tracking/**", "/fund-request-tracking/**")
+				)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/", "/user/openregistrationfrm", "/user/saveuser", "/css/**", "/others",
 								"/images/**", "/js/**", "/api/**","/bsa/**","/bsa-request/**",
-								"/bsa-membership/**", "/students/**")
+								"/bsa-membership/**", "/students/**","/bsa-fund-request/**","/fund-request-submission/**",
+								"/bsa-college-registration/**","/vp-president-membership/request-form",
+								"/api/vp-president-membership/public-request","/membership-tracking/**","fund-request-tracking/**")
 						.permitAll()
 						.anyRequest().authenticated())
 				.formLogin(form -> form.loginPage("/login") // custom login page

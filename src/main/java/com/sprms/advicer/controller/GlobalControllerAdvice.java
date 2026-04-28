@@ -25,7 +25,7 @@ public class GlobalControllerAdvice {
 	// this is used for the logging the error
 	private static final Logger logger = LoggerFactory.getLogger(GlobalControllerAdvice.class);
 	
-	@Autowired
+	@Autowired(required = false)
 	private MenuService menuService;
 
 	@Autowired
@@ -44,6 +44,12 @@ public class GlobalControllerAdvice {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new RuntimeException("User not found"));
 		    
+		// Handle case where menuService might be null
+		if (menuService == null) {
+			logger.warn("MenuService is not available, returning empty menu list");
+			return Collections.emptyList();
+		}
+		
 		List<MenuDTO> menus = menuService.getSidebarMenus(user.getId());
 		
         // 🔹 DEBUG LOG

@@ -31,7 +31,11 @@ import com.sprms.system.hbmbeans.BSAMembership;
 import com.sprms.system.hbmbeans.FundingType;
 import com.sprms.system.hbmbeans.MembershipStatus;
 import com.sprms.system.hbmbeans.User;
+import com.sprms.system.hbmbeans.ScholarshipRegistration;
+import com.sprms.system.hbmbeans.BSACollegeRegistration;
 import com.sprms.system.user.dao.UserRepository;
+import com.sprms.system.core.servicesdao.ScholarshipRegistrationRepository;
+import com.sprms.system.core.servicesdao.BSACollegeRegistrationRepository;
 
 @RestController
 @RequestMapping("/api/bsa-membership")
@@ -42,11 +46,15 @@ public class BSAMembershipController {
     private final BSAMembershipService _bsaMembershipService;
     private final UserRepository _userRepository;
     private final BSAMembershipRepository _bsaMembershipRepository;
+    private final ScholarshipRegistrationRepository _scholarshipRegistrationRepository;
+    private final BSACollegeRegistrationRepository _bsaCollegeRegistrationRepository;
 
-    public BSAMembershipController(BSAMembershipService bsaMembershipService, UserRepository userRepository, BSAMembershipRepository bsaMembershipRepository) {
+    public BSAMembershipController(BSAMembershipService bsaMembershipService, UserRepository userRepository, BSAMembershipRepository bsaMembershipRepository, ScholarshipRegistrationRepository scholarshipRegistrationRepository, BSACollegeRegistrationRepository bsaCollegeRegistrationRepository) {
         this._bsaMembershipService = bsaMembershipService;
         this._userRepository = userRepository;
         this._bsaMembershipRepository = bsaMembershipRepository;
+        this._scholarshipRegistrationRepository = scholarshipRegistrationRepository;
+        this._bsaCollegeRegistrationRepository = bsaCollegeRegistrationRepository;
     }
 
     // Get available BSAs for membership registration
@@ -79,14 +87,77 @@ public class BSAMembershipController {
         }
     }
 
+    // Search scholarship student by CID
+    @GetMapping("/scholarship/search-by-cid/{cid}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Map<String, Object>> searchScholarshipStudentByCid(@PathVariable String cid) {
+        try {
+            List<ScholarshipRegistration> students = _scholarshipRegistrationRepository.findByCitizenId(cid);
+            
+            if (students.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("success", false, "error", "Student not found with CID: " + cid));
+            }
+            
+            ScholarshipRegistration student = students.get(0); // Get first match
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("id", student.getId());
+            studentData.put("citizenId", student.getCitizenId());
+            studentData.put("firstName", student.getFirstName());
+            studentData.put("middleName", student.getMiddleName());
+            studentData.put("lastName", student.getLastName());
+            studentData.put("contactNo", student.getContactNo());
+            studentData.put("emailAddress", student.getEmailAddress());
+            studentData.put("indexNumber", student.getIndexNumber());
+            studentData.put("permanentAddress", student.getPermanentAddress());
+            studentData.put("countryOfCompletion", student.getCountryOfCompletion());
+            
+            return ResponseEntity.ok(Map.of("success", true, "student", studentData));
+        } catch (Exception e) {
+            logger.error("Error searching scholarship student by CID: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "error", "Error searching for student"));
+        }
+    }
+
+    // Get colleges for BSA
+    @GetMapping("/bsa-colleges/{bsaId}")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<Map<String, Object>> getCollegesForBsa(@PathVariable Long bsaId) {
+        try {
+            List<BSACollegeRegistration> colleges = _bsaCollegeRegistrationRepository.findByBsaBsaIdAndStatus(bsaId, com.sprms.system.hbmbeans.RegistrationStatus.ACTIVE);
+            
+            List<Map<String, Object>> collegeList = new ArrayList<>();
+            for (BSACollegeRegistration collegeReg : colleges) {
+                Map<String, Object> collegeData = new HashMap<>();
+                collegeData.put("collegeId", collegeReg.getCollege().getId());
+                collegeData.put("collegeName", collegeReg.getCollege().getCollegeName());
+                collegeData.put("country", collegeReg.getCountry().getCountryName());
+                collegeData.put("state", collegeReg.getState().getStateName());
+                collegeData.put("city", collegeReg.getCity().getCityName());
+                collegeList.add(collegeData);
+            }
+            
+            return ResponseEntity.ok(Map.of("success", true, "colleges", collegeList));
+        } catch (Exception e) {
+            logger.error("Error getting colleges for BSA: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "error", "Error loading colleges"));
+        }
+    }
+
     
     // Create new membership request
     @PostMapping("/request")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<BSAMembershipDTO> createMembershipRequest(@RequestBody Map<String, Object> request) {
         try {
+            logger.info("Received membership request: {}", request);
+            
             Long bsaId = Long.valueOf(request.get("bsaId").toString());
             FundingType fundingType = FundingType.valueOf(request.get("fundingType").toString());
+            
+            logger.info("Processing request - BSA ID: {}, Funding Type: {}", bsaId, fundingType);
             
             // Get current logged-in student
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -103,11 +174,16 @@ public class BSAMembershipController {
             studentData.put("program", request.get("program"));
             studentData.put("collegeName", request.get("collegeName"));
             studentData.put("address", request.get("address"));
+            studentData.put("collegeId", request.get("collegeId"));
+
+            logger.info("Student data extracted: {}", studentData);
 
             BSAMembershipDTO result = _bsaMembershipService.createMembershipRequest(bsaId, student.getId(), fundingType, studentData);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             logger.error("Error creating membership request: {}", e.getMessage());
+            logger.error("Request data: {}", request.toString());
+            logger.error("Stack trace: ", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

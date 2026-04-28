@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Request Search Results</title>
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary-color: #4F46E5; /* Indigo */
+            --primary-hover: #4338ca;
+            --success-color: #10B981; /* Emerald */
+            --success-bg: #D1FAE5;
+            --success-text: #065F46;
+            --error-color: #EF4444; /* Red */
+            --error-bg: #FEE2E2;
+            --error-text: #991B1B;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --bg-body: #F3F4F6;
+            --bg-card: #ffffff;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        /* --- LAYOUT & CONTAINER --- */
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+        }
+
+        /* --- ALERT COMPONENTS --- */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 1rem 1.25rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            animation: slideDown 0.4s ease-out;
+            position: relative;
+        }
+
+        .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .alert-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        /* --- CLOSE BUTTON STYLES --- */
+        .alert-close-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.6;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .alert-close-btn:hover {
+            opacity: 1;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-close-btn:focus {
+            outline: 2px solid rgba(0,0,0,0.1);
+            outline-offset: 2px;
+        }
+
+        /* --- CARD COMPONENT --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), #818CF8);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: #E0E7FF;
+            color: var(--primary-color);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* --- DATA ROWS --- */
+        .data-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .data-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        @media (min-width: 480px) {
+            .data-row {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: baseline;
+                padding-bottom: 0.75rem;
+                border-bottom: 1px dashed #E5E7EB;
+            }
+            .data-row:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+        }
+
+        .data-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .data-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        /* --- EMPTY STATE --- */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            color: #D1D5DB;
+        }
+
+        /* --- ACTIONS --- */
+        .card-footer {
+            padding: 1.5rem 2rem;
+            background-color: #F9FAFB;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid #D1D5DB;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            background-color: #F3F4F6;
+            border-color: #9CA3AF;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .hide-alert {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="page-header">
+            <h2>Fund Request Verification</h2>
+            <p>Search results for fund request tracking</p>
+        </header>
+
+        <!-- Success Message Alert -->
+        <div th:if="${success}" class="alert alert-success" id="success-alert">
+            <div class="alert-content">
+                <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span th:text="${success}">Operation successful</span>
+            </div>
+            <!-- Close Button -->
+            <button type="button" class="alert-close-btn" onclick="closeAlert('success-alert')" aria-label="Close">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Error Message Alert -->
+        <div th:if="${error}" class="alert alert-error" id="error-alert">
+            <div class="alert-content">
+                <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span th:text="${error}">Error message details</span>
+            </div>
+            <!-- Close Button -->
+            <button type="button" class="alert-close-btn" onclick="closeAlert('error-alert')" aria-label="Close">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Fund Request Details Card -->
+        <div th:if="${fundRequest != null}" class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    Fund Request Profile
+                </div>
+                <div class="status-badge" th:text="${fundRequest.fundRequestStatus}">Active</div>
+            </div>
+
+            <div class="card-body">
+                <div class="data-grid">
+                    
+                    <div class="data-row">
+                        <span class="data-label">Fund Request ID</span>
+                        <span class="data-value" th:text="${fundRequest.fundRequestId}">ID</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="data-label">Reference Number</span>
+                        <span class="data-value" style="font-family: monospace; letter-spacing: 1px;" th:text="${fundRequest.referenceNumber}">Reference Number</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="data-label">Activity Description</span>
+                        <span class="data-value" th:text="${fundRequest.activityDescription}">Activity Description</span>
+                    </div>
+                    
+                    <div class="data-row">
+                        <span class="data-label">Event Type</span>
+                        <span class="data-value" th:text="${fundRequest.eventType}">Event Type</span>
+                    </div>
+                    
+                    <div class="data-row">
+                        <span class="data-label">Requested Amount</span>
+                        <span class="data-value" th:text="${fundRequest.requestedAmount}">Requested Amount</span>
+                    </div>
+                    
+                    <div class="data-row">
+                        <span class="data-label">Status</span>
+                        <span class="data-value" th:text="${fundRequest.fundRequestStatus}">Status</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="data-label">Request Date</span>
+                        <span class="data-value" th:text="${fundRequest.requestDate}">Request Date</span>
+                    </div>
+                    
+                    <div class="data-row">
+                        <span class="data-label">Requested By</span>
+                        <span class="data-value" th:text="${fundRequest.requestedBy?.username}">Requested By</span>
+                    </div>
+                    
+                    <div class="data-row">
+                        <span class="data-label">BSA Name</span>
+                        <span class="data-value" th:text="${fundRequest.bsa?.bsaName}">BSA Name</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <a href="/fund-request-tracking/search" class="btn btn-secondary">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Back to Search
+                </a>
+            </div>
+        </div>
+
+        <!-- Empty State (No Data Found) -->
+        <div th:if="${fundRequest == null and error == null}" class="card">
+            <div class="empty-state">
+                <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3>No fund request found</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">We couldn't locate any record matching your criteria. Please try again.</p>
+            </div>
+            <div class="card-footer">
+                <a href="/fund-request-tracking/search" class="btn btn-secondary">Back to Search</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript to handle Alert Closing -->
+    <script>
+        function closeAlert(alertId) {
+            const alertElement = document.getElementById(alertId);
+            if (alertElement) {
+                // Add a class to trigger the fade out animation
+                alertElement.classList.add('hide-alert');
+                
+                // Wait for the animation to finish before removing from DOM
+                setTimeout(() => {
+                    alertElement.style.display = 'none';
+                }, 300); // Matches the duration of the fadeOut animation
+            }
+        }
+    </script>
+</body>
+</html>

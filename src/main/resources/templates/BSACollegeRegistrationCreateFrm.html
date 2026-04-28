@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSA College Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-university me-2"></i>BSA College Registration</h4>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/bsa-college-registration/register}" th:object="${formBean}" method="post">
+                            <!-- BSA Selection -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="bsaId" class="form-label">Select BSA</label>
+                                    <select class="form-select" id="bsaId" th:field="*{bsaId}" required>
+                                        <option value="">Select BSA...</option>
+                                        <option th:each="bsa : ${bsas}" th:value="${bsa.bsaId}" th:text="${bsa.bsaName + ' - ' + bsa.bsaCode}"></option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('bsaId')}" th:errors="*{bsaId}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Location Fields -->
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="countryId" class="form-label">Country</label>
+                                    <select class="form-select" id="countryId" th:field="*{countryId}" required>
+                                        <option value="">Select Country...</option>
+                                        <option th:each="country : ${countries}" th:value="${country.id}" th:text="${country.countryName}"></option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('countryId')}" th:errors="*{countryId}"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="stateId" class="form-label">State</label>
+                                    <select class="form-select" id="stateId" th:field="*{stateId}" required disabled>
+                                        <option value="">Select State...</option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('stateId')}" th:errors="*{stateId}"></div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="cityId" class="form-label">City</label>
+                                    <select class="form-select" id="cityId" th:field="*{cityId}" required disabled>
+                                        <option value="">Select City...</option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('cityId')}" th:errors="*{cityId}"></div>
+                                </div>
+                            </div>
+
+                            <!-- College Selection -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">Select Colleges</label>
+                                    <div id="collegeSelection" class="mt-2">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-university fa-3x mb-3"></i>
+                                            <p>Please select a city to load available colleges.</p>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="selectedColleges" th:field="*{selectedCollegeIds}" />
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Register Colleges
+                                    </button>
+                                    <a href="/bsa-college-registration/list" class="btn btn-secondary ms-2">
+                                        <i class="fas fa-list me-2"></i>View Registrations
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // BSA change event - auto-populate location
+            $('#bsaId').change(function() {
+                const bsaId = $(this).val();
+                if (bsaId) {
+                    loadBSALocation(bsaId);
+                } else {
+                    clearLocationFields();
+                    clearCollegeSelection();
+                }
+            });
+
+            // Country change event
+            $('#countryId').change(function() {
+                const countryId = $(this).val();
+                if (countryId) {
+                    loadStates(countryId);
+                } else {
+                    $('#stateId').prop('disabled', true).val('');
+                    $('#cityId').prop('disabled', true).val('');
+                    clearCollegeSelection();
+                }
+            });
+
+            // State change event
+            $('#stateId').change(function() {
+                const stateId = $(this).val();
+                const countryId = $('#countryId').val();
+                if (stateId && countryId) {
+                    loadCities(countryId, stateId);
+                } else {
+                    $('#cityId').prop('disabled', true).val('');
+                    clearCollegeSelection();
+                }
+            });
+
+            // City change event
+            $('#cityId').change(function() {
+                const cityId = $(this).val();
+                const countryId = $('#countryId').val();
+                const stateId = $('#stateId').val();
+                const bsaId = $('#bsaId').val();
+                
+                if (cityId && countryId && stateId) {
+                    loadColleges(bsaId, countryId, stateId, cityId);
+                } else {
+                    clearCollegeSelection();
+                }
+            });
+        });
+
+        function loadBSALocation(bsaId) {
+            $.get('/bsa-college-registration/api/bsa/' + bsaId, function(data) {
+                if (data.countryId) {
+                    $('#countryId').val(data.countryId).prop('disabled', false);
+                    loadStates(data.countryId, data.stateId);
+                }
+            }).fail(function() {
+                console.error('Error loading BSA location');
+            });
+        }
+
+        function loadStates(countryId, selectedStateId) {
+            $.get('/bsa-college-registration/api/states/' + countryId, function(states) {
+                const stateSelect = $('#stateId');
+                stateSelect.empty().append('<option value="">Select State...</option>');
+                states.forEach(function(state) {
+                    stateSelect.append('<option value="' + state.stateId + '">' + state.stateName + '</option>');
+                });
+                stateSelect.prop('disabled', false);
+                
+                if (selectedStateId) {
+                    stateSelect.val(selectedStateId);
+                    stateSelect.trigger('change');
+                }
+            });
+        }
+
+        function loadCities(countryId, stateId, selectedCityId) {
+            $.get('/bsa-college-registration/api/cities/' + stateId, function(cities) {
+                const citySelect = $('#cityId');
+                citySelect.empty().append('<option value="">Select City...</option>');
+                cities.forEach(function(city) {
+                    citySelect.append('<option value="' + city.cityId + '">' + city.cityName + '</option>');
+                });
+                citySelect.prop('disabled', false);
+                
+                if (selectedCityId) {
+                    citySelect.val(selectedCityId);
+                    citySelect.trigger('change');
+                }
+            });
+        }
+
+        function loadColleges(bsaId, countryId, stateId, cityId) {
+            // Ensure parameters are properly converted to numbers
+            const bsaIdNum = bsaId ? parseInt(bsaId) : null;
+            const countryIdNum = countryId ? parseInt(countryId) : null;
+            const stateIdNum = stateId ? parseInt(stateId) : null;
+            const cityIdNum = cityId ? parseInt(cityId) : null;
+            
+            console.log('Loading colleges with params:', { bsaId: bsaIdNum, countryId: countryIdNum, stateId: stateIdNum, cityId: cityIdNum });
+            
+            // Only require countryId, stateId, and cityId for college loading
+            if (!countryIdNum || !stateIdNum || !cityIdNum) {
+                console.log('Missing required location parameters');
+                return;
+            }
+            
+            const params = {
+                countryId: countryIdNum,
+                stateId: stateIdNum,
+                cityId: cityIdNum
+            };
+            
+            // Add bsaId only if it's available
+            if (bsaIdNum) {
+                params.bsaId = bsaIdNum;
+            }
+            
+            $.get('/bsa-college-registration/api/colleges', params, function(colleges) {
+                console.log('Colleges loaded:', colleges);
+                displayColleges(colleges);
+            }).fail(function(xhr, status, error) {
+                console.error('Error loading colleges:', { xhr, status, error });
+                showCollegeError('Error loading colleges. Please try again.');
+            });
+        }
+
+        function displayColleges(colleges) {
+            const container = $('#collegeSelection');
+            
+            if (colleges.length === 0) {
+                container.html('<div class="text-center text-muted py-4"><i class="fas fa-university fa-3x mb-3"></i><p>No colleges available for this location or all colleges are already registered with this BSA.</p></div>');
+                return;
+            }
+
+            let collegeHtml = '<div class="row">';
+            colleges.forEach(function(college) {
+                collegeHtml += '<div class="col-md-6 col-lg-4 mb-3"><div class="card"><div class="card-body"><div class="form-check"><input class="form-check-input" type="checkbox" id="college_' + college.collegeId + '" value="' + college.collegeId + '" onchange="updateSelectedColleges()"><label class="form-check-label" for="college_' + college.collegeId + '"><strong>' + college.collegeName + '</strong>' + (college.shortName ? '<br><small class="text-muted">(' + college.shortName + ')</small>' : '') + '</label></div></div></div></div>';
+            });
+            collegeHtml += '</div>';
+            container.html(collegeHtml);
+        }
+
+        function updateSelectedColleges() {
+            const selectedIds = [];
+            $('input[type="checkbox"]:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+            $('#selectedColleges').val(selectedIds.join(','));
+        }
+
+        function clearCollegeSelection() {
+            $('#collegeSelection').html('<div class="text-center text-muted py-4"><i class="fas fa-university fa-3x mb-3"></i><p>Please select a city to load available colleges.</p></div>');
+            $('#selectedColleges').val('');
+        }
+
+        function clearLocationFields() {
+            $('#countryId').val('').prop('disabled', true);
+            $('#stateId').val('').prop('disabled', true);
+            $('#cityId').val('').prop('disabled', true);
+        }
+
+        function showCollegeError(message) {
+            $('#collegeSelection').html('<div class="alert alert-danger">' + message + '</div>');
+        }
+    </script>
+</body>
+</html>

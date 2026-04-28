@@ -50,4 +50,14 @@ public interface BSAMembershipRepository extends JpaRepository<BSAMembership, Lo
     // Find all memberships for a student with details
     @Query("SELECT m FROM BSAMembership m LEFT JOIN FETCH m.bsa WHERE m.student.id = :studentId ORDER BY m.membershipRequestDate DESC")
     List<BSAMembership> findByStudentIdWithBsaDetails(@Param("studentId") Long studentId);
+    
+    // Count active memberships by BSA
+    @Query("SELECT COUNT(m) FROM BSAMembership m WHERE m.bsa.bsaId = :bsaId AND m.membershipStatus = :status")
+    long countByBsaIdAndMembershipStatus(@Param("bsaId") Long bsaId, @Param("status") MembershipStatus status);
+    
+    // Find membership by reference number
+    Optional<BSAMembership> findByReferenceNumber(String referenceNumber);
+    
+    // Debug method to count all memberships
+    long count();
 }

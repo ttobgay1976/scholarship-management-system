@@ -3,6 +3,7 @@ package com.sprms.system.modelMapper;
 import java.util.List;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.sprms.system.frmbeans.CountryFrmBean;
 import com.sprms.system.hbmbeans.Country;
@@ -12,6 +13,8 @@ public interface CountryFrmBeanMapper {
 
 	
 	//form Entity to frmbean
+	@Mapping(target = "states", ignore = true)
+	@Mapping(target = "colleges", ignore = true)
 	Country toEntity(CountryFrmBean frmbean);
 	
 	//from frmbean to entity
